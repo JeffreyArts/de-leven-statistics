@@ -1,0 +1,27 @@
+@forward "fonts.scss";
+
+body {
+    margin: 0;
+    display: flex;
+    background-color: #222;
+}
+
+aside {
+    width: 320px;
+    min-height: 100vh;
+}
+
+#nav a {
+    color: #fff;
+    display: inline-block;
+    width: 100%;
+    padding: 20px;
+    text-decoration: none;
+    font-family: FixedSys;
+}
+
+#contentPage {
+    height: 100vh;
+    width: calc( 100% - 320px);
+    border: 0 none transparent
+}

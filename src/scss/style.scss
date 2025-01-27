@@ -17,9 +17,6 @@
 
 body {
     margin: 0;
-    h1 {
-        color: #f00;
-    }
 }
 
 table {
@@ -70,51 +67,4 @@ tr.selected {
     border-radius: 2px;
     font-size: 8px;
 
-}
-
-.info-box {
-    display: flex;
-    flex-flow:column;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    color: #fff;
-    width: 128px;
-    aspect-ratio: 1;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-}
-
-.info-box-name {
-    font-size: 12px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    text-align: center;
-    padding: 8px;
-    right: 0;
-}
-.info-box-value {
-    font-size: 40px;
-    position: absolute;
-    top: calc(50% + 10px);
-    left: 50%;
-    translate: -50% -50%;
-}
-
-.top-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-}
-.info-boxes {
-    display: grid;
-    gap: 20px;
-}
-
-svg .bar {
-    fill: #f09;
-}
-svg .label {
-    fill: #fff;
-    font-weight: normal;
 }
