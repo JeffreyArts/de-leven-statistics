@@ -106,13 +106,12 @@ const werp = function() {
     }
     throws.push(diceResult)
 
-    drawChart(throws)
     updateDiceResult()
 }
 
 const werp1El = document.querySelector("#werp")
 if (werp1El) {
-    werp1El.addEventListener("click", function() { werp() })
+    werp1El.addEventListener("click", function() { werp(); drawChart(throws) })
 }
 const werp10El = document.querySelector("#werp-10")
 if (werp10El) {
@@ -120,6 +119,7 @@ if (werp10El) {
         for (let i = 0; i < 10; i++) {
             werp() 
         }
+        drawChart(throws)
     })
 }
 const werp100El = document.querySelector("#werp-100")
@@ -128,6 +128,7 @@ if (werp100El) {
         for (let i = 0; i < 100; i++) {
             werp() 
         }
+        drawChart(throws)
     })
 }
 
@@ -137,6 +138,7 @@ if (werp1000El) {
         for (let i = 0; i < 1000; i++) {
             werp() 
         }
+        drawChart(throws)
     })
 }
 
@@ -146,6 +148,7 @@ if (werp10000El) {
         for (let i = 0; i < 10000; i++) {
             werp() 
         }
+        drawChart(throws)
     })
 }
 
