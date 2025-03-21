@@ -122,6 +122,29 @@ if (werp10000El) {
     })
 }
 
+const werp100000El = document.querySelector("#werp-100000")
+if (werp100000El) {
+    werp100000El.addEventListener("click", function() { 
+        const res = berekenHandwaarde(hand.filter(card => card.selected), 100000)
+        throws.push(...res)
+        updateDiceResult()
+        drawChart(throws)
+    })
+}
+
+const werp1000000El = document.querySelector("#werp-1000000")
+if (werp1000000El) {
+    werp1000000El.addEventListener("click", function() { 
+        // Bereken in batches van 100.000
+        for (let i = 0; i < 10; i++) {
+            const res = berekenHandwaarde(hand.filter(card => card.selected), 100000)
+            throws.push(...res)
+            updateDiceResult()
+            drawChart(throws)
+        }
+    })
+}
+
 const updateDiceResult = function() {
     const dicesEl = document.querySelector("#dices")
     if (dicesEl) {
@@ -132,11 +155,61 @@ const updateDiceResult = function() {
     if (diceResultEl) {
         diceResultEl.innerHTML = throws[throws.length - 1].toString()
     }
+
+    if (throws.length > 0) {
+        const kansenLijstEl = document.querySelector("#kansen-lijst")
+        if (kansenLijstEl) {
+            // Bereken de frequentie van elke waarde
+            const frequenties = throws.reduce((acc, num) => {
+                acc[num] = (acc[num] || 0) + 1
+                return acc
+            }, {} as Record<number, number>)
+
+            // Maak de lijst leeg
+            kansenLijstEl.innerHTML = ""
+
+            // Maak een tabel
+            const table = document.createElement("table")
+            const thead = document.createElement("thead")
+            const tbody = document.createElement("tbody")
+            
+            // Voeg de header toe
+            const headerRow = document.createElement("tr")
+            headerRow.innerHTML = `
+                <th>Waarde</th>
+                <th>Percentage</th>
+                <th>Aantal</th>
+            `
+            thead.appendChild(headerRow)
+            table.appendChild(thead)
+            table.appendChild(tbody)
+
+            // Voeg elke kans toe aan de tabel
+            Object.entries(frequenties)
+                .map(([waarde, aantal]) => ({
+                    waarde: parseInt(waarde),
+                    aantal,
+                    percentage: (aantal / throws.length) * 100
+                }))
+                .sort((a, b) => b.percentage - a.percentage)
+                .forEach(({waarde, aantal, percentage}) => {
+                    const tr = document.createElement("tr")
+                    tr.innerHTML = `
+                        <td>${waarde}</td>
+                        <td>${percentage.toFixed(1)}%</td>
+                        <td>${aantal}x</td>
+                    `
+                    tbody.appendChild(tr)
+                })
+
+            kansenLijstEl.appendChild(table)
+        }
+    }
 }
 
 function drawChart(input: number[]) {
     // Create an array with a length equal to the maximum number in the input
-    const maxValue = Math.max(...input)
+    const maxValue = input.reduce((max, num) => Math.max(max, num), 0)
     const data = Array.from({ length: maxValue }, (_, i) => i + 1).reduce((acc, num) => {
         acc[num] = 0 // Initialize all numbers to 0 frequency
         return acc
@@ -148,7 +221,10 @@ function drawChart(input: number[]) {
     })
 
     // Get SVG element and set viewBox dimensions dynamically
-    const svg = document.getElementById("chart") as SVGElement
+    const svg = document.getElementById("chart")
+    if (!svg || !(svg instanceof SVGElement)) {
+        return
+    }
     svg.innerHTML = "" // Clear previous chart
     const barWidth = 40
     const barGap = 20
@@ -159,7 +235,7 @@ function drawChart(input: number[]) {
     // Set the viewBox attribute
     svg.setAttribute("viewBox", `0 0 ${chartWidth} ${chartHeight + 20}`) // Extra space for labels
 
-    const maxFrequency = Math.max(...Object.values(data))
+    const maxFrequency = Object.values(data).reduce((max, freq) => Math.max(max, freq), 0)
     const scale = chartHeight / (maxFrequency + 1)
 
     let xOffset = barGap

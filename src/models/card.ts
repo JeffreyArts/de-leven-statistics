@@ -28,11 +28,14 @@ export const CardTypes = [
 class Card {
     public selected: boolean = false
     public tr: HTMLTableRowElement | null = null
-    public readonly id: string = Math.random().toString(36).substr(2, 9)
+    public readonly id: string
     public readonly description: string 
     constructor(
         public readonly name: CardName,
     ) {
+        // Genereer een vaste ID op basis van de kaartnaam
+        this.id = name.toLowerCase().replace(/\s+/g, "-")
+        
         switch (name) {
             case "Dubbele worp":
                 this.description = "Gooi twee keer"

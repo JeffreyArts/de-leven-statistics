@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand analyzer</title>
+</head>
+<body class="hand-analyzer">
+    <section id="hand-overview">
+        <table>
+            <thead>
+                <tr>
+                    <th>Kaart</th>
+                    <th>Beschrijving</th>
+                    <th>Aantal</th>
+                    <th>Actie</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+
+    <section id="deck-management">
+        <h2>Deck beheer</h2>
+        <div class="deck-controls">
+            <input type="text" id="deck-name" placeholder="Deck naam">
+            <button id="new-deck">Nieuw deck</button>
+        </div>
+        <div class="deck-list">
+            <h3>Beschikbare decks</h3>
+            <ul id="decks-list"></ul>
+        </div>
+    </section>
+    <section class="info-boxes" id="info-boxes">
+        <div class="info-box">
+            <strong class="info-box-name">Totaal aantal kaarten</strong>
+            <span class="info-box-value" id="simulaties"></span>
+        </div>  
+    </section>
+
+    <section class="info-graph" id="info-graph">
+        <svg id="chart"></svg>
+    </section>
+    
+
+    <script type="module" src="/src/pages/hand-analyzer.ts"></script>
+</body>
+</html> 
