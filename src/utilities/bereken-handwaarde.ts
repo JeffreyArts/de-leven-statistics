@@ -10,6 +10,7 @@ const berekenHandwaarde = function(kaarten: Card[], aantalWorpen = 1) {
         let doubleThrow = false
         let bestOf3 = false
         let diceResult = 0
+        let achterwaarts = false
 
         // Verwerk extra dobbelsteen
         kaarten.forEach(card => {  
@@ -28,6 +29,10 @@ const berekenHandwaarde = function(kaarten: Card[], aantalWorpen = 1) {
             if (card.name == "Best of 3") {
                 bestOf3 = true
             }
+
+            if (card.name == "Achterwaarts") {
+                achterwaarts = true
+            }
         })
         
         diceResult = berekenWorp(dice, doubleThrow)
@@ -42,6 +47,11 @@ const berekenHandwaarde = function(kaarten: Card[], aantalWorpen = 1) {
                 diceResult = poging3
             }
         }
+
+        if (achterwaarts) {
+            diceResult *= -1
+        }
+        
         handWaarde.push(diceResult)
     }
     
