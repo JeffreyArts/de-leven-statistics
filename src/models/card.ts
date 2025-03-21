@@ -25,7 +25,7 @@ export const CardTypes = [
     "Achterwaarts" 
 ] as CardName[]
 
-export const Card = class Card {
+class Card {
     public selected: boolean = false
     public tr: HTMLTableRowElement | null = null
     public readonly id: string = Math.random().toString(36).substr(2, 9)
@@ -71,4 +71,5 @@ export const Card = class Card {
     }
 }
 
+export {Card}
 export default Card

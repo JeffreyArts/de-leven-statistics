@@ -1,10 +1,9 @@
 import "/src/scss/style.scss"
 import "/src/scss/hand-power-visualizer.scss"
 import {Card, CardTypes} from "./../models/card"
+import berekenHandwaarde from "../utilities/bereken-handwaarde"
 
-const hand = [] as Card[]
-let dice = 1
-let diceResult = 0
+const hand = [] as Array<Card>
 const throws = [] as number[]
 
 for(let i = 0; i < CardTypes.length; i++) {
@@ -14,12 +13,15 @@ for(let i = 0; i < CardTypes.length; i++) {
 
 
 const selectCard = function(event: Event) {
-    const buttonEl = event.target as buttonElement
+    const buttonEl = event.target as HTMLButtonElement
     if (!buttonEl) {
         return
     }
 
     const targetRow = buttonEl.parentElement?.parentElement
+    if (!targetRow) {
+        return
+    }
 
     if (buttonEl.innerHTML === "-") {
         buttonEl.innerHTML = "+"
@@ -70,65 +72,32 @@ if (gameboardEl) {
     }
 }
 
-const werp = function() {
-
-    const activeCards = hand.filter(card => card.selected)
-    dice = 1
-    let doubleThrow = false
-    let bestOf3 = false
-
-    // Proces extra dobbelsteen
-    activeCards.forEach(card => {  
-        if (card.name == "Extra dobbelsteen") {
-            dice ++
-        }
-        if (card.name == "Meerdere dobbelstenen") {
-            dice = Math.ceil(Math.random() * 6)
-        }
-        if (card.name == "Dubbele worp") {
-            doubleThrow = true
-        }
-        if (card.name == "Best of 3") {
-            bestOf3 = true
-        }
-    })
-    diceResult = 0
-    diceResult = calculateThrow(doubleThrow, 0)
-    if (bestOf3) {
-        const poging2 = calculateThrow(doubleThrow, 0)
-        const poging3 = calculateThrow(doubleThrow, 0)
-
-        if (poging2 > diceResult) {
-            diceResult = poging2
-        }
-        if (poging3 > diceResult) {
-            diceResult = poging3
-        }
-    }
-    throws.push(diceResult)
-
-    updateDiceResult()
-}
-
 const werp1El = document.querySelector("#werp")
 if (werp1El) {
-    werp1El.addEventListener("click", function() { werp(); drawChart(throws) })
+    werp1El.addEventListener("click", function() { 
+        const res = berekenHandwaarde(hand.filter(card => card.selected))
+        throws.push(...res)
+        updateDiceResult()
+        drawChart(throws) 
+    })
 }
+
 const werp10El = document.querySelector("#werp-10")
 if (werp10El) {
     werp10El.addEventListener("click", function() { 
-        for (let i = 0; i < 10; i++) {
-            werp() 
-        }
+        const res = berekenHandwaarde(hand.filter(card => card.selected), 10)
+        throws.push(...res)
+        updateDiceResult()
         drawChart(throws)
     })
 }
+
 const werp100El = document.querySelector("#werp-100")
 if (werp100El) {
     werp100El.addEventListener("click", function() { 
-        for (let i = 0; i < 100; i++) {
-            werp() 
-        }
+        const res = berekenHandwaarde(hand.filter(card => card.selected), 100)
+        throws.push(...res)
+        updateDiceResult()
         drawChart(throws)
     })
 }
@@ -136,9 +105,9 @@ if (werp100El) {
 const werp1000El = document.querySelector("#werp-1000")
 if (werp1000El) {
     werp1000El.addEventListener("click", function() { 
-        for (let i = 0; i < 1000; i++) {
-            werp() 
-        }
+        const res = berekenHandwaarde(hand.filter(card => card.selected), 1000)
+        throws.push(...res)
+        updateDiceResult()
         drawChart(throws)
     })
 }
@@ -146,42 +115,24 @@ if (werp1000El) {
 const werp10000El = document.querySelector("#werp-10000")
 if (werp10000El) {
     werp10000El.addEventListener("click", function() { 
-        for (let i = 0; i < 10000; i++) {
-            werp() 
-        }
+        const res = berekenHandwaarde(hand.filter(card => card.selected), 10000)
+        throws.push(...res)
+        updateDiceResult()
         drawChart(throws)
     })
-}
-
-const calculateThrow = function(double: boolean, lastThrow = 0 as number) {
-    let res = 0
-    for (let i = 0; i < dice; i++) {
-        res += Math.ceil(Math.random() * 6)
-    }
-    if (!lastThrow) {
-        lastThrow = res
-    } else {
-        res += lastThrow
-    }
-
-    if (double)  {
-        res = calculateThrow(false, lastThrow)
-    }
-    return res
 }
 
 const updateDiceResult = function() {
     const dicesEl = document.querySelector("#dices")
     if (dicesEl) {
-        dicesEl.innerHTML = dice.toString()
+        dicesEl.innerHTML = throws.length.toString()
     }
 
     const diceResultEl = document.querySelector("#dice-result")
     if (diceResultEl) {
-        diceResultEl.innerHTML = diceResult.toString()
+        diceResultEl.innerHTML = throws[throws.length - 1].toString()
     }
 }
-
 
 function drawChart(input: number[]) {
     // Create an array with a length equal to the maximum number in the input

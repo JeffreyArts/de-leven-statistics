@@ -6,9 +6,8 @@
     <title>Hand power visualizer</title>
 </head>
 <body class="hand-power-visualizer">
-    <div class="top-section">
-        <section>
-            <table id="hand-overview">
+        <section id="hand-overview">
+            <table>
                 <thead>
                     <tr>
                         <td>Naam</td>
@@ -25,22 +24,22 @@
             <button id="werp-10000">Gooi 10000x</button>
         </section>
 
-        <div class="info-graph">
-        <svg id="chart"></svg>
-        </div>
+        <section class="info-graph" id="info-graph">
+            <svg id="chart"></svg>
+        </section>
         
-        <section class="info-boxes">
+        <section class="info-boxes" id="info-boxes">
             <div class="info-box">
                 <strong class="info-box-name">Aantal dobbelstenen</strong>
                 <span class="info-box-value" id="dices"></span>
             </div>
             
             <div class="info-box">
-                <strong class="info-box-name">Aantal</strong>
+                <strong class="info-box-name">Laatste worp</strong>
                 <span class="info-box-value" id="dice-result"></span>
             </div>        
         </section>
-    </div>
+    
 
     <script type="module" src="/src/pages/hand-power-visualizer.ts"></script>
 </body>
