@@ -1,21 +1,44 @@
-import { ICard } from "./card"
+import { CardName } from "./card"
+
+interface ICard {
+    name: CardName;
+    value: number;
+}
 
 export class Deck {
-    private cards: ICard[]
-    private discardPile: ICard[]
+    private cards: ICard[] = []
+    private discardPile: ICard[] = []
 
-    constructor() {
-        this.cards = []
+    public setCards(cardNames: CardName[]): void {
+        this.cards = cardNames.map(name => ({
+            name,
+            value: 0
+        }))
         this.discardPile = []
     }
 
-    public setCards(cards: string[]): void {
-        this.cards = cards.map(card => ({
-            name: card,
-            value: 0, // Deze waarden worden niet gebruikt voor de berekening
-            suit: ""
-        }))
-        this.discardPile = []
+    public shuffle(): void {
+        for (let i = this.cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]]
+        }
+    }
+
+    public draw(count: number): CardName[] {
+        const drawnCards: CardName[] = []
+        for (let i = 0; i < count; i++) {
+            if (this.cards.length === 0) {
+                // Als het deck leeg is, schud de discard pile en maak er een nieuw deck van
+                this.cards = [...this.discardPile]
+                this.discardPile = []
+                this.shuffle()
+            }
+            const card = this.cards.pop()
+            if (card) {
+                drawnCards.push(card.name)
+            }
+        }
+        return drawnCards
     }
 
     public getCards(): ICard[] {
@@ -26,23 +49,10 @@ export class Deck {
         return this.discardPile
     }
 
-    public shuffle(): void {
-        for (let i = this.cards.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]]
-        }
-    }
-
-    public draw(count: number): string[] {
-        const drawnCards = this.cards.splice(0, count)
-        return drawnCards.map(card => card.name)
-    }
-
-    public discard(cards: string[]): void {
-        this.discardPile.push(...cards.map(card => ({
-            name: card,
-            value: 0,
-            suit: ""
+    public discard(cards: CardName[]): void {
+        this.discardPile.push(...cards.map(name => ({
+            name,
+            value: 0
         })))
     }
 

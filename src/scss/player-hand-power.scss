@@ -95,30 +95,33 @@
             gap: 10px;
 
             .player-hand {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 border-radius: 4px;
 
                 h4 {
+                    margin: 0;
+                    padding: 8px;
+                    background-color: rgba(255, 255, 255, 0.1);
+                    color: #fff;
+                    border-radius: 4px 4px 0 0;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin: 0;
-                    padding: 10px;
-                    background-color: rgba(255, 255, 255, 0.1);
-                    border-radius: 4px 4px 0 0;
 
                     .score-container {
                         display: flex;
                         gap: 10px;
 
                         .score {
-                            font-size: 14px;
                             font-weight: normal;
-
                             &.selected-score {
                                 color: #f09;
                             }
-
                             &.max-score {
                                 color: #fff;
                             }
@@ -147,10 +150,35 @@
                         }
 
                         &.selected {
-                            background-color: rgba(240, 9, 153, 0.2);
-                            border-color: #f09;
+                            background-color: #f09;
                         }
                     }
+                }
+
+                .play-hand-button {
+                    padding: 4px 0;
+                    background-color: #f09;
+                    color: #fff;
+                    border: none;
+                    border-radius: 2px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    font-size: 12px;
+                    width: 80px;
+                    align-self: end;
+                    display: none;
+
+                    &:hover {
+                        background-color: #d0078f;
+                    }
+
+                    &:active {
+                        transform: scale(0.95);
+                    }
+                }
+
+                &:has(.cards:not(:empty)) .play-hand-button {
+                    display: block;
                 }
             }
         }
