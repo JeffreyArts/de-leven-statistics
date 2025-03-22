@@ -114,16 +114,6 @@ if (werp1000El) {
     })
 }
 
-const werp10000El = document.querySelector("#werp-10000")
-if (werp10000El) {
-    werp10000El.addEventListener("click", function() { 
-        const res = berekenHandwaarde(hand.filter(card => card.selected), 10000)
-        throws.push(...res)
-        updateDiceResult()
-        drawChart(throws)
-    })
-}
-
 const werp100000El = document.querySelector("#werp-100000")
 if (werp100000El) {
     werp100000El.addEventListener("click", function() { 
