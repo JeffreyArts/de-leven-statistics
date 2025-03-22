@@ -1,5 +1,5 @@
 import { Card } from "../models/card"
-import berekenHandwaarde from "./bereken-handwaarde"
+import berekenHandwaarde from "./bereken-worp"
 
 export default function berekenScoreRange(cards: Card[]): [number, number] {
     if (cards.length == 0) {

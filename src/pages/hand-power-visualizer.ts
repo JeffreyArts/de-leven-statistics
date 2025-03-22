@@ -2,7 +2,7 @@ import "/src/scss/style.scss"
 import "/src/scss/buttons.scss"
 import "/src/scss/hand-power-visualizer.scss"
 import {Card, CardTypes} from "./../models/card"
-import berekenHandwaarde from "../utilities/bereken-handwaarde"
+import berekenHandwaarde from "../utilities/bereken-worp"
 import berekenScoreRange from "../utilities/bereken-score-range"
 
 const hand = [] as Array<Card>
