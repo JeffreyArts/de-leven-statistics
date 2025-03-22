@@ -6,6 +6,7 @@ const nav = [
     { text: "Hand Power Visualizer", link: "/pages/hand-power-visualizer" },
     { text: "Deck Builder", link: "/pages/deck-builder" },
     { text: "Player Hand Power", link: "/pages/player-hand-power" },
+    { text: "Genereer Hand Waarden", link: "/pages/generate-hand-values" },
 ]
 
 const navEl = document.getElementById("nav")
