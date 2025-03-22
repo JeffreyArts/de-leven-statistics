@@ -2,37 +2,13 @@ import "/src/scss/style.scss"
 import "/src/scss/buttons.scss"
 import "/src/scss/player-hand-power.scss"
 import { Card, CardTypes } from "../models/card"
-import { PlayerManagement } from "../models/player-management"
+import { PlayerManagementService } from "../services/player-management.service"
+import { Deck, DeckSerialization } from "../models/deck"
 
-interface DeckCard {
-    id: string;
-    count: number;
-}
-
-interface Deck {
-    name: string;
-    cards: DeckCard[];
-}
-
-let decks: Deck[] = JSON.parse(localStorage.getItem("decks") || "[]")
+let decks: Deck[] = JSON.parse(localStorage.getItem("decks") || "[]").map((d: DeckSerialization) => Deck.fromSerialization(d))
 if (decks.length === 0) {
-    decks = [{
-        name: "Default",
-        cards: [
-            { id: "card-dubbele-worp", count: 5 },
-            { id: "card-best-of-3", count: 3 },
-            { id: "card-extra-dobbelsteen", count: 6 },
-            { id: "card-meerdere-dobbelstenen", count: 3 },
-            { id: "card-wissel-positie", count: 2 },
-            { id: "card-speler-links", count: 6 },
-            { id: "card-speler-rechts", count: 6 },
-            { id: "card-links,-rechts", count: 5 },
-            { id: "card-iedereen", count: 4 },
-            { id: "card-pak-een-kaart", count: 5 },
-            { id: "card-achterwaarts", count: 6 }
-        ]
-    }]
-    localStorage.setItem("decks", JSON.stringify(decks))
+    alert("Geen decks gevonden, maak eerst een nieuw deck aan via de Deck builder pagina")
+    throw new Error("Geen decks gevonden")
 }
 let currentDeckIndex: number = 0
 
@@ -43,15 +19,15 @@ const mogelijkeKaarten = CardTypes.map(cardType => new Card(cardType))
 const updateDeckUI = function() {
     // Update de tellers voor elke kaart
     mogelijkeKaarten.forEach(card => {
-        const deckCard = decks[currentDeckIndex]?.cards.find(dc => dc.id === `card-${card.id}`)
+        const deckCard = decks[currentDeckIndex]?.getCards().find(dc => dc.name === card.name)
         const countEl = card.tr?.querySelector(".card-count")
         if (countEl) {
-            countEl.textContent = deckCard ? deckCard.count.toString() : "0"
+            countEl.textContent = deckCard ? decks[currentDeckIndex].getCards().filter(dc => dc.name === card.name).length.toString() : "0"
         }
     })
 
     // Update het totaal aantal kaarten
-    const totalCards = decks[currentDeckIndex]?.cards.reduce((sum, card) => sum + card.count, 0) || 0
+    const totalCards = decks[currentDeckIndex]?.getCards().length || 0
     const totalCardsEl = document.querySelector("#simulaties")
     if (totalCardsEl) {
         totalCardsEl.textContent = totalCards.toString()
@@ -60,7 +36,7 @@ const updateDeckUI = function() {
     // Update de deck naam input
     const deckNameInput = document.querySelector("#deck-name") as HTMLInputElement
     if (deckNameInput && currentDeckIndex >= 0) {
-        deckNameInput.value = decks[currentDeckIndex].name
+        deckNameInput.value = decks[currentDeckIndex].getName()
     }
 }
 
@@ -77,7 +53,7 @@ const updateDecksList = function() {
         }
         
         const nameSpan = document.createElement("span")
-        nameSpan.textContent = deck.name
+        nameSpan.textContent = deck.getName()
         
         const statusEl = document.createElement("div")
         if (index === currentDeckIndex) {
@@ -108,12 +84,7 @@ const selectDeck = function(index: number) {
 
     // Update het deck in de PlayerManagement class
     const selectedDeck = decks[currentDeckIndex]
-    const cards = selectedDeck.cards.flatMap(deckCard => {
-        const cardType = CardTypes.find(ct => `card-${ct.toLowerCase().replace(/\s+/g, "-")}` === deckCard.id)
-        if (!cardType) return []
-        return Array(deckCard.count).fill(new Card(cardType))
-    })
-    playerManagement.setDeck(cards)
+    playerManagement.setDeck(selectedDeck.getCards())
 }
 
 // Verwijder een deck
@@ -128,14 +99,14 @@ const deleteDeck = function(index: number) {
 
         // Als er geen decks meer zijn, maak een nieuwe default deck
         if (decks.length === 0) {
-            decks = [{
-                name: "Default",
-                cards: []
-            }]
+            const defaultDeck = new Deck()
+            defaultDeck.setName("Default")
+            defaultDeck.setCards([])
+            decks = [defaultDeck]
             currentDeckIndex = 0
         }
 
-        localStorage.setItem("decks", JSON.stringify(decks))
+        localStorage.setItem("decks", JSON.stringify(decks.map(d => d.toSerialization())))
         updateDeckUI()
         updateDecksList()
     }
@@ -149,8 +120,8 @@ const saveDeck = function() {
     }
 
     const deckName = deckNameInput.value.trim()
-    decks[currentDeckIndex].name = deckName
-    localStorage.setItem("decks", JSON.stringify(decks))
+    decks[currentDeckIndex].setName(deckName)
+    localStorage.setItem("decks", JSON.stringify(decks.map(d => d.toSerialization())))
     updateDecksList()
 }
 
@@ -169,27 +140,27 @@ const selectCard = function(event: Event) {
     const card = mogelijkeKaarten.find(card => `card-${card.id}` === cardId)
     if (!card) return
     
-    const deckCard = decks[currentDeckIndex].cards.find(dc => dc.id === `card-${card.id}`)
+    const deckCard = decks[currentDeckIndex].getCards().find(dc => dc.name === card.name)
     
     if (buttonEl.classList.contains("minus-btn")) {
         // Verwijder een kaart uit het deck
         if (deckCard) {
-            if (deckCard.count > 1) {
-                deckCard.count--
+            if (decks[currentDeckIndex].getCards().filter(dc => dc.name === card.name).length > 1) {
+                decks[currentDeckIndex].removeCard(deckCard)
             } else {
-                decks[currentDeckIndex].cards = decks[currentDeckIndex].cards.filter(dc => dc.id !== `card-${card.id}`)
+                decks[currentDeckIndex].removeCard(deckCard)
             }
         }
     } else {
         // Voeg een kaart toe aan het deck
         if (deckCard) {
-            deckCard.count++
+            decks[currentDeckIndex].addCard(deckCard)
         } else {
-            decks[currentDeckIndex].cards.push({ id: `card-${card.id}`, count: 1 })
+            decks[currentDeckIndex].addCard(card)
         }
     }
 
-    localStorage.setItem("decks", JSON.stringify(decks))
+    localStorage.setItem("decks", JSON.stringify(decks.map(d => d.toSerialization())))
     updateDeckUI()
 }
 
@@ -240,34 +211,59 @@ if (table) {
 }
 
 // Initialiseer de PlayerManagement class
-const playerManagement = new PlayerManagement()
-
-// Selecteer het eerste deck en geef het door aan de PlayerManagement class
-if (decks.length > 0) {
-    const selectedDeck = decks[0]
-    const cards = selectedDeck.cards.flatMap(deckCard => {
-        const cardType = CardTypes.find(ct => `card-${ct.toLowerCase().replace(/\s+/g, "-")}` === deckCard.id)
-        if (!cardType) return []
-        return Array(deckCard.count).fill(new Card(cardType))
-    })
-    playerManagement.setDeck(cards)
-}
+const playerManagement = new PlayerManagementService()
 
 // Initialiseer de UI
 updateDeckUI()
 updateDecksList()
 
+// Selecteer het eerste deck
+if (decks.length > 0) {
+    selectDeck(0)
+}
+
+// Initialiseer de UI elementen voor deck management
 const decreaseButton = document.getElementById("decrease-players") as HTMLButtonElement
 const increaseButton = document.getElementById("increase-players") as HTMLButtonElement
 const dealButton = document.getElementById("deal-cards") as HTMLButtonElement
-const playerHandsList = document.getElementById("player-hands-list") as HTMLDivElement
-this.deck = new Deck()
 
 // Initialiseer playerCount met de waarde uit de input
-this.playerCount = parseInt(this.playerCountInput.value) || 2
+const playerCountInput = document.getElementById("player-count") as HTMLInputElement
+const playerCount = parseInt(playerCountInput.value) || 2
 
 // Voeg de addition-button class toe aan de plus/min knoppen
 if (decreaseButton) decreaseButton.classList.add("addition-button")
 if (increaseButton) increaseButton.classList.add("addition-button")
 
-this.initializeEventListeners()
+// Initialiseer event listeners
+if (decreaseButton) decreaseButton.addEventListener("click", () => updatePlayerCount(-1))
+if (increaseButton) increaseButton.addEventListener("click", () => updatePlayerCount(1))
+if (playerCountInput) playerCountInput.addEventListener("change", validatePlayerCount)
+if (dealButton) dealButton.addEventListener("click", dealCards)
+
+function updatePlayerCount(delta: number): void {
+    const newCount = playerCount + delta
+    if (newCount >= 2 && newCount <= 8) {
+        playerCountInput.value = newCount.toString()
+        
+        // Update de disabled status van de knoppen
+        if (decreaseButton) decreaseButton.classList.toggle("addition-button__isDisabled", newCount <= 2)
+        if (increaseButton) increaseButton.classList.toggle("addition-button__isDisabled", newCount >= 8)
+    }
+}
+
+function validatePlayerCount(): void {
+    const value = parseInt(playerCountInput.value)
+    if (value >= 2 && value <= 8) {
+        // Update de disabled status van de knoppen
+        if (decreaseButton) decreaseButton.classList.toggle("addition-button__isDisabled", value <= 2)
+        if (increaseButton) increaseButton.classList.toggle("addition-button__isDisabled", value >= 8)
+    } else {
+        playerCountInput.value = playerCount.toString()
+    }
+}
+
+function dealCards(): void {
+    // Implementatie van dealCards functionaliteit
+    console.log("Dealing cards...")
+}

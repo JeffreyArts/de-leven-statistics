@@ -1,20 +1,62 @@
-import { CardName } from "./card"
+import { Card, CardName, CardTypes } from "./card"
 
-interface ICard {
-    name: CardName;
-    value: number;
+export interface DeckSerialization {
+    name: string;
+    cards: Array<{
+        name: CardName;
+        count: number;
+    }>;
 }
 
 export class Deck {
-    private cards: ICard[] = []
-    private discardPile: ICard[] = []
+    private cards: Card[] = []
+    private discardPile: Card[] = []
+    private name: string = "Default"
 
-    public setCards(cardNames: CardName[]): void {
-        this.cards = cardNames.map(name => ({
-            name,
-            value: 0
-        }))
+    constructor() {
+        this.reset()
+    }
+
+    public setName(name: string): void {
+        this.name = name
+    }
+
+    public getName(): string {
+        return this.name
+    }
+
+    public setCards(cards: Card[]): void {
+        this.cards = cards
         this.discardPile = []
+    }
+
+    public toSerialization(): DeckSerialization {
+        const cardCounts = new Map<CardName, number>()
+        this.cards.forEach(card => {
+            cardCounts.set(card.name, (cardCounts.get(card.name) || 0) + 1)
+        })
+
+        return {
+            name: this.name,
+            cards: Array.from(cardCounts.entries()).map(([name, count]) => ({
+                name,
+                count
+            }))
+        }
+    }
+
+    public static fromSerialization(serialization: DeckSerialization): Deck {
+        const deck = new Deck()
+        deck.name = serialization.name
+        deck.cards = serialization.cards.flatMap(({name, count}) => {
+            if (CardTypes.includes(name)) {
+                return Array(count).fill(new Card(name))
+            } else {
+                console.warn(`Ongeldige kaartnaam: ${name}`)
+                return []
+            }
+        })
+        return deck
     }
 
     public shuffle(): void {
@@ -24,8 +66,8 @@ export class Deck {
         }
     }
 
-    public draw(count: number): CardName[] {
-        const drawnCards: CardName[] = []
+    public draw(count: number): Card[] {
+        const drawnCards: Card[] = []
         for (let i = 0; i < count; i++) {
             if (this.cards.length === 0) {
                 // Als het deck leeg is, schud de discard pile en maak er een nieuw deck van
@@ -35,32 +77,29 @@ export class Deck {
             }
             const card = this.cards.pop()
             if (card) {
-                drawnCards.push(card.name)
+                drawnCards.push(card)
             }
         }
         return drawnCards
     }
 
-    public getCards(): ICard[] {
+    public getCards(): Card[] {
         return this.cards
     }
 
-    public getDiscardPile(): ICard[] {
+    public getDiscardPile(): Card[] {
         return this.discardPile
     }
 
-    public discard(cards: CardName[]): void {
-        this.discardPile.push(...cards.map(name => ({
-            name,
-            value: 0
-        })))
+    public discard(cards: Card[]): void {
+        this.discardPile.push(...cards)
     }
 
-    public addCard(card: ICard): void {
+    public addCard(card: Card): void {
         this.cards.push(card)
     }
 
-    public removeCard(card: ICard): void {
+    public removeCard(card: Card): void {
         const index = this.cards.findIndex(c => c.name === card.name)
         if (index !== -1) {
             this.cards.splice(index, 1)
@@ -69,5 +108,10 @@ export class Deck {
 
     public clear(): void {
         this.cards = []
+    }
+
+    public reset(): void {
+        this.cards = []
+        this.discardPile = []
     }
 } 

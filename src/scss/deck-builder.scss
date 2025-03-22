@@ -1,4 +1,4 @@
-.hand-analyzer {
+.deck-builder {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     padding: 40px;
@@ -265,7 +265,7 @@ td:last-child {
 }
 
 @media (min-width: 768px) {
-    .hand-analyzer {
+    .deck-builder {
         grid-template-columns: repeat(12, 1fr);
     }
     #hand-overview {

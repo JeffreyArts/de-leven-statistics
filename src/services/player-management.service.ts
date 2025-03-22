@@ -1,13 +1,13 @@
-import { Card, CardName } from "./card"
+import { Card, CardName } from "../models/card"
 import berekenHandwaarde from "../utilities/bereken-handwaarde"
-import { Deck } from "./deck"
+import { Deck } from "../models/deck"
 
 interface PlayerHand {
     cards: Card[];
     maxScore: [number, number];
 }
 
-export class PlayerManagement {
+export class PlayerManagementService {
     private playerCount: number
     private playerCountInput: HTMLInputElement
     private decreaseButton: HTMLButtonElement
@@ -248,33 +248,13 @@ export class PlayerManagement {
         const playerHands = this.playerHandsList.querySelectorAll(".cards")
         playerHands.forEach((hand, index) => {
             const playerCards = this.deck.draw(5).map(cardName => new Card(cardName as CardName))
-            
-            // Bereken de maximale score voor alle kaarten
-            const maxScores = []
-            for (let i = 0; i < 100000; i++) {
-                const result = berekenHandwaarde(playerCards)
-                maxScores.push(...result)
-            }
-            maxScores.sort((a, b) => a - b)
-            const maxScore: [number, number] = [maxScores[0], maxScores[maxScores.length - 1]]
-            
-            // Sla de hand en maximale score op in de playerHands map
             this.playerHands.set(index + 1, {
                 cards: playerCards,
-                maxScore
+                maxScore: [0, 0]
             })
             
-            // Update de maximale score in de UI
-            const maxScoreElement = this.playerHandsList
-                .querySelector(`.player-hand:nth-child(${index + 1}) .max-score`)
-            if (maxScoreElement) {
-                maxScoreElement.textContent = `[${maxScore[0]}, ${maxScore[1]}]`
-            }
-            
-            // Maak de hand leeg
+            // Update de UI voor deze speler
             hand.innerHTML = ""
-            
-            // Voeg elke kaart toe als een lijst item
             playerCards.forEach(card => {
                 const cardElement = document.createElement("div")
                 cardElement.className = "card"
@@ -287,7 +267,7 @@ export class PlayerManagement {
             })
         })
 
-        // Update de info boxes om de nieuwe aantallen te tonen
+        // Update de info boxes
         this.updateInfoBoxes()
     }
 } 
