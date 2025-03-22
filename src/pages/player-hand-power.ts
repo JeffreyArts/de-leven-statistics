@@ -12,10 +12,22 @@ if (decks.length === 0) {
     throw new Error("Geen decks gevonden")
 }
 
+// Laad het actieve deck uit localStorage
+const activeDeckName = localStorage.getItem("activeDeck")
+let activeDeck: Deck = decks[0]
+if (activeDeckName) {
+    const savedDeck = decks.find(deck => deck.getName() === activeDeckName)
+    if (savedDeck) {
+        activeDeck = savedDeck
+    }
+}
+
 // Initialiseer de PlayerManagement class met het eerste deck
 const playerManagement = new PlayerManagementService()
-let activeDeck: Deck = decks[0]
+// Stel eerst het deck in
 playerManagement.setDeck(activeDeck.getCards())
+// Laad dan de spelers en verwijder hun kaarten uit het deck
+playerManagement.loadAndAdjustDeck()
 
 // Initialiseer de UI elementen voor deck management
 const decreaseButton = document.getElementById("decrease-players") as HTMLButtonElement
@@ -248,6 +260,13 @@ const updateDecksList = function(): void {
         
         li.addEventListener("click", () => {
             activeDeck = deck
+            // Sla het actieve deck op in localStorage
+            localStorage.setItem("activeDeck", deck.getName())
+            // Maak eerst de handen leeg zonder de kaarten terug te zetten
+            playerManagement.clearPlayerHands()
+            // Update de UI direct na het leegmaken van de handen
+            updatePlayerHandsDisplay()
+            // Stel dan het nieuwe deck in
             playerManagement.setDeck(deck.getCards())
             updateDecksList()
             updateInfoBoxes()

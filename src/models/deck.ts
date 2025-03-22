@@ -26,7 +26,10 @@ export class Deck {
     }
 
     public setCards(cards: Card[]): void {
-        this.cards = cards
+        this.cards = []
+        cards.forEach(card => {
+            this.cards.push(card)
+        })
         this.discardPile = []
     }
 
@@ -104,6 +107,10 @@ export class Deck {
         if (index !== -1) {
             this.cards.splice(index, 1)
         }
+    }
+
+    public removeCards(cards: Card[]): void {
+        cards.forEach(card => this.removeCard(card))
     }
 
     public clear(): void {

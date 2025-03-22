@@ -38,8 +38,19 @@ const updateDeckUI = function() {
     mogelijkeKaarten.forEach((card: Card) => {
         const deckCard = decks[currentDeckIndex]?.getCards().find(dc => dc.name === card.name)
         const countEl = card.tr?.querySelector(".card-count")
+        const minusButton = card.tr?.querySelector(".minus-btn")
         if (countEl) {
-            countEl.textContent = deckCard ? decks[currentDeckIndex].getCards().filter(dc => dc.name === card.name).length.toString() : "0"
+            const count = deckCard ? decks[currentDeckIndex].getCards().filter(dc => dc.name === card.name).length : 0
+            countEl.textContent = count.toString()
+            console.log(deckCard, count, minusButton)
+            // Update de minus knop status
+            if (minusButton) {
+                if (count <= 0) {
+                    minusButton.classList.add("__isDisabled")
+                } else {
+                    minusButton.classList.remove("__isDisabled")
+                }
+            }
         }
     })
 
@@ -167,41 +178,22 @@ const newDeck = function() {
     updateDecksList()
 }
 
-const selectCard = function(event: Event) {
-    const buttonEl = event.target as HTMLButtonElement
-    if (!buttonEl || currentDeckIndex < 0) {
-        return
+const removeCard = function(card: Card) {
+    if (currentDeckIndex < 0) return
+    
+    const cards = decks[currentDeckIndex].getCards()
+    const cardToRemove = cards.find(dc => dc.name === card.name)
+    if (cardToRemove) {
+        decks[currentDeckIndex].removeCard(cardToRemove)
+        localStorage.setItem("decks", JSON.stringify(decks.map(d => d.toSerialization())))
+        updateDeckUI()
     }
-    
-    const targetRow = buttonEl.parentElement?.parentElement?.parentElement
-    if (!targetRow) {
-        return
-    }
-    
-    const cardId = targetRow.id
-    const card = mogelijkeKaarten.find((c: Card) => `card-${c.id}` === cardId)
-    if (!card) return
-    
-    const deckCard = decks[currentDeckIndex].getCards().find(dc => dc.name === card.name)
-    
-    if (buttonEl.classList.contains("minus-btn")) {
-        // Verwijder een kaart uit het deck
-        if (deckCard) {
-            if (decks[currentDeckIndex].getCards().filter(dc => dc.name === card.name).length > 1) {
-                decks[currentDeckIndex].removeCard(deckCard)
-            } else {
-                decks[currentDeckIndex].removeCard(deckCard)
-            }
-        }
-    } else {
-        // Voeg een kaart toe aan het deck
-        if (deckCard) {
-            decks[currentDeckIndex].addCard(deckCard)
-        } else {
-            decks[currentDeckIndex].addCard(card)
-        }
-    }
+}
 
+const addCard = function(card: Card) {
+    if (currentDeckIndex < 0) return
+    
+    decks[currentDeckIndex].addCard(card)
     localStorage.setItem("decks", JSON.stringify(decks.map(d => d.toSerialization())))
     updateDeckUI()
 }
@@ -243,11 +235,11 @@ if (table) {
         plusButton.innerHTML = "+"
         minusButton.innerHTML = "-"
         
-        plusButton.className = "addition-button"
-        minusButton.className = "addition-button"
+        plusButton.className = "addition-button plus-btn"
+        minusButton.className = "addition-button minus-btn"
         
-        plusButton.addEventListener("click", selectCard)
-        minusButton.addEventListener("click", selectCard)
+        plusButton.addEventListener("click", () => addCard(card))
+        minusButton.addEventListener("click", () => removeCard(card))
         
         card.tr = tr
     })

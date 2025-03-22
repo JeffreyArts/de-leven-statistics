@@ -11,7 +11,16 @@ export class PlayerManagementService {
     constructor() {
         this.deck = new Deck()
         this.playerCount = 2 // Default waarde
+    }
+
+    public loadAndAdjustDeck(): void {
         this.loadPlayers()
+        
+        // Verwijder alle kaarten die in de handen van spelers zitten uit het deck
+        this.players.forEach(player => {
+            const cardsInHand = player.getHand()
+            this.deck.removeCards(cardsInHand)
+        })
     }
 
     private loadPlayers(): void {
@@ -161,5 +170,13 @@ export class PlayerManagementService {
         this.deck = new Deck()
         this.deck.setCards(allCards)
         this.deck.shuffle()
+    }
+
+    public clearPlayerHands(): void {
+        this.players.forEach(player => {
+            player.setHand([])
+            player.setSelectedCards([])
+        })
+        this.savePlayers()
     }
 } 
