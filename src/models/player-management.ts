@@ -25,8 +25,16 @@ export class PlayerManagement {
         this.playerHandsList = document.getElementById("player-hands-list") as HTMLDivElement
         this.deck = new Deck()
 
+        // Voeg de addition-button class toe aan de plus/min knoppen
+        if (this.decreaseButton) this.decreaseButton.classList.add("addition-button")
+        if (this.increaseButton) this.increaseButton.classList.add("addition-button")
+
         // Initialiseer playerCount met de waarde uit de input
         this.playerCount = parseInt(this.playerCountInput.value) || 2
+
+        // Initialiseer de disabled status van de knoppen
+        this.decreaseButton.classList.toggle("addition-button__isDisabled", this.playerCount <= 2)
+        this.increaseButton.classList.toggle("addition-button__isDisabled", this.playerCount >= 8)
 
         this.initializeEventListeners()
         this.updateInfoBoxes()
@@ -45,6 +53,11 @@ export class PlayerManagement {
         if (newCount >= 2 && newCount <= 8) {
             this.playerCount = newCount
             this.playerCountInput.value = this.playerCount.toString()
+            
+            // Update de disabled status van de knoppen
+            this.decreaseButton.classList.toggle("addition-button__isDisabled", newCount <= 2)
+            this.increaseButton.classList.toggle("addition-button__isDisabled", newCount >= 8)
+            
             this.updatePlayerHandsDisplay()
         }
     }
@@ -53,6 +66,11 @@ export class PlayerManagement {
         const value = parseInt(this.playerCountInput.value)
         if (value >= 2 && value <= 8) {
             this.playerCount = value
+            
+            // Update de disabled status van de knoppen
+            this.decreaseButton.classList.toggle("addition-button__isDisabled", value <= 2)
+            this.increaseButton.classList.toggle("addition-button__isDisabled", value >= 8)
+            
             this.updatePlayerHandsDisplay()
         } else {
             this.playerCountInput.value = this.playerCount.toString()

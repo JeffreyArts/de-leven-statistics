@@ -1,0 +1,28 @@
+.addition-button {
+    border: 1px solid #fff;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.24s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &__isDisabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    &.selected {
+        background-color: #f09;
+        border: 1px solid #fff;
+    }
+} 

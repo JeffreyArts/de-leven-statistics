@@ -1,4 +1,5 @@
 import "/src/scss/style.scss"
+import "/src/scss/buttons.scss"
 import "/src/scss/hand-power-visualizer.scss"
 import {Card, CardTypes} from "./../models/card"
 import berekenHandwaarde from "../utilities/bereken-handwaarde"
@@ -56,6 +57,7 @@ if (table) {
         tdDescr.innerHTML = card.description
     
         button.innerHTML = "+"  
+        button.classList.add("addition-button")
         button.addEventListener("click", selectCard)
         tr.id = `card-${card.id}`
         card.tr = tr
@@ -74,6 +76,7 @@ if (gameboardEl) {
 
 const werp1El = document.querySelector("#werp")
 if (werp1El) {
+    werp1El.classList.add("addition-button")
     werp1El.addEventListener("click", function() { 
         const res = berekenHandwaarde(hand.filter(card => card.selected))
         throws.push(...res)
@@ -84,6 +87,7 @@ if (werp1El) {
 
 const werp10El = document.querySelector("#werp-10")
 if (werp10El) {
+    werp10El.classList.add("addition-button")
     werp10El.addEventListener("click", function() { 
         const res = berekenHandwaarde(hand.filter(card => card.selected), 10)
         throws.push(...res)
@@ -94,6 +98,7 @@ if (werp10El) {
 
 const werp100El = document.querySelector("#werp-100")
 if (werp100El) {
+    werp100El.classList.add("addition-button")
     werp100El.addEventListener("click", function() { 
         const res = berekenHandwaarde(hand.filter(card => card.selected), 100)
         throws.push(...res)
@@ -104,6 +109,7 @@ if (werp100El) {
 
 const werp1000El = document.querySelector("#werp-1000")
 if (werp1000El) {
+    werp1000El.classList.add("addition-button")
     werp1000El.addEventListener("click", function() { 
         const res = berekenHandwaarde(hand.filter(card => card.selected), 1000)
         throws.push(...res)
@@ -114,6 +120,7 @@ if (werp1000El) {
 
 const werp10000El = document.querySelector("#werp-10000")
 if (werp10000El) {
+    werp10000El.classList.add("addition-button")
     werp10000El.addEventListener("click", function() { 
         const res = berekenHandwaarde(hand.filter(card => card.selected), 10000)
         throws.push(...res)
@@ -124,6 +131,7 @@ if (werp10000El) {
 
 const werp100000El = document.querySelector("#werp-100000")
 if (werp100000El) {
+    werp100000El.classList.add("addition-button")
     werp100000El.addEventListener("click", function() { 
         const res = berekenHandwaarde(hand.filter(card => card.selected), 100000)
         throws.push(...res)
@@ -134,6 +142,7 @@ if (werp100000El) {
 
 const werp1000000El = document.querySelector("#werp-1000000")
 if (werp1000000El) {
+    werp1000000El.classList.add("addition-button")
     werp1000000El.addEventListener("click", function() { 
         // Bereken in batches van 100.000
         for (let i = 0; i < 10; i++) {
@@ -146,14 +155,24 @@ if (werp1000000El) {
 }
 
 const updateDiceResult = function() {
-    const dicesEl = document.querySelector("#dices")
-    if (dicesEl) {
-        dicesEl.innerHTML = throws.length.toString()
-    }
-
-    const diceResultEl = document.querySelector("#dice-result")
+    const dicesEl = document.querySelector("#dices") as HTMLElement
+    const diceResultEl = document.querySelector("#dice-result") as HTMLElement
+    
     if (diceResultEl) {
         diceResultEl.innerHTML = throws[throws.length - 1].toString()
+        // Gebruik de font-size van de laatste worp als basis
+        const baseFontSize = window.getComputedStyle(diceResultEl).fontSize
+        if (dicesEl) {
+            const aantalDobbelstenen = throws.length.toString()
+            dicesEl.innerHTML = aantalDobbelstenen
+            
+            // Pas de font-size aan op basis van de lengte van het getal
+            if (aantalDobbelstenen.length > 5) {
+                dicesEl.style.fontSize = `calc(${baseFontSize} * 0.8)`
+            } else {
+                dicesEl.style.fontSize = baseFontSize
+            }
+        }
     }
 
     if (throws.length > 0) {

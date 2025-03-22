@@ -1,4 +1,5 @@
 import "/src/scss/style.scss"
+import "/src/scss/buttons.scss"
 import "/src/scss/player-hand-power.scss"
 import { Card, CardTypes } from "../models/card"
 import { PlayerManagement } from "../models/player-management"
@@ -228,8 +229,8 @@ if (table) {
         plusButton.innerHTML = "+"
         minusButton.innerHTML = "-"
         
-        plusButton.className = "plus-btn"
-        minusButton.className = "minus-btn"
+        plusButton.className = "addition-button"
+        minusButton.className = "addition-button"
         
         plusButton.addEventListener("click", selectCard)
         minusButton.addEventListener("click", selectCard)
@@ -255,3 +256,18 @@ if (decks.length > 0) {
 // Initialiseer de UI
 updateDeckUI()
 updateDecksList()
+
+const decreaseButton = document.getElementById("decrease-players") as HTMLButtonElement
+const increaseButton = document.getElementById("increase-players") as HTMLButtonElement
+const dealButton = document.getElementById("deal-cards") as HTMLButtonElement
+const playerHandsList = document.getElementById("player-hands-list") as HTMLDivElement
+this.deck = new Deck()
+
+// Initialiseer playerCount met de waarde uit de input
+this.playerCount = parseInt(this.playerCountInput.value) || 2
+
+// Voeg de addition-button class toe aan de plus/min knoppen
+if (decreaseButton) decreaseButton.classList.add("addition-button")
+if (increaseButton) increaseButton.classList.add("addition-button")
+
+this.initializeEventListeners()

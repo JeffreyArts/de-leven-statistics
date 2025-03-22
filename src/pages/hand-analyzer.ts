@@ -1,4 +1,5 @@
 import "/src/scss/style.scss"
+import "/src/scss/buttons.scss"
 import "/src/scss/hand-analyzer.scss"
 import {Card, CardTypes} from "./../models/card"
 
@@ -238,8 +239,8 @@ if (table) {
         plusButton.innerHTML = "+"
         minusButton.innerHTML = "-"
         
-        plusButton.className = "plus-btn"
-        minusButton.className = "minus-btn"
+        plusButton.className = "addition-button"
+        minusButton.className = "addition-button"
         
         plusButton.addEventListener("click", selectCard)
         minusButton.addEventListener("click", selectCard)

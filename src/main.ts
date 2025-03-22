@@ -3,7 +3,7 @@ import "./scss/main.scss"
 const nav = [
     { text: "Home", link: "/pages/home" },
     { text: "Hand Power Visualizer", link: "/pages/hand-power-visualizer" },
-    { text: "Hand Analyzer", link: "/pages/hand-analyzer" },
+    { text: "Deck Builder", link: "/pages/hand-analyzer" },
     { text: "Player Hand Power", link: "/pages/player-hand-power" },
 ]
 
