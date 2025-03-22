@@ -3,6 +3,7 @@ import "/src/scss/buttons.scss"
 import "/src/scss/hand-power-visualizer.scss"
 import {Card, CardTypes} from "./../models/card"
 import berekenHandwaarde from "../utilities/bereken-handwaarde"
+import berekenScoreRange from "../utilities/bereken-score-range"
 
 const hand = [] as Array<Card>
 const throws = [] as number[]
@@ -32,7 +33,9 @@ const selectCard = function(event: Event) {
         targetRow.classList.add("selected")
     }
     const card = hand.find(card => `card-${card.id}` ===  targetRow.id)
-    card.selected = !card.selected
+    if (card) {
+        card.selected = !card.selected
+    }
     // console.log(card)
 }
 

@@ -3,7 +3,7 @@ import "/src/scss/buttons.scss"
 import "/src/scss/player-hand-power.scss"
 import { PlayerManagementService } from "../services/player-management.service"
 import { Deck, DeckSerialization } from "../models/deck"
-import berekenHandwaarde from "../utilities/bereken-handwaarde"
+import berekenScoreRange from "../utilities/bereken-score-range"
 
 // Laad de beschikbare decks
 const decks: Deck[] = JSON.parse(localStorage.getItem("decks") || "[]").map((d: DeckSerialization) => Deck.fromSerialization(d))
@@ -70,30 +70,15 @@ const updatePlayerScore = function(playerNumber: number): void {
     const player = playerManagement.getPlayer(playerNumber)
     if (!player) return
 
-    const selectedCards = player.getSelectedCards()
-
-    // Bereken 100.000 keer de handwaarde voor geselecteerde kaarten
-    const selectedScores = []
-    for (let i = 0; i < 100000; i++) {
-        const result = berekenHandwaarde(selectedCards)
-        selectedScores.push(...result)
-    }
-
-    // Bepaal de min en max door de scores te sorteren
-    selectedScores.sort((a, b) => a - b)
-    const selectedMinScore = selectedScores[0]
-    const selectedMaxScore = selectedScores[selectedScores.length - 1]
-
     const selectedScoreElement = playerHandsList
         .querySelector(`.player-hand:nth-child(${playerNumber}) .selected-score`)
     const maxScoreElement = playerHandsList
         .querySelector(`.player-hand:nth-child(${playerNumber}) .max-score`)
 
     if (selectedScoreElement) {
-        if (selectedScores.length === 0) {
-            selectedScoreElement.textContent = "[x, x]"
-        } else if (selectedMinScore === selectedMaxScore) {
-            selectedScoreElement.textContent = `[${selectedMinScore}, ${selectedMinScore}]`
+        const [selectedMinScore, selectedMaxScore] = player.getSelectedScoreRange()
+        if (selectedMaxScore == 0 && selectedMinScore == 0) {
+            selectedScoreElement.textContent = "-"
         } else {
             selectedScoreElement.textContent = `[${selectedMinScore}, ${selectedMaxScore}]`
         }
@@ -127,11 +112,11 @@ const updatePlayerHandsDisplay = function(): void {
         
         const selectedScore = document.createElement("span")
         selectedScore.className = "score selected-score"
-        selectedScore.textContent = "[x, x]"
+        selectedScore.textContent = "-"
         
         const maxScore = document.createElement("span")
         maxScore.className = "score max-score"
-        maxScore.textContent = "[x, x]"
+        maxScore.textContent = "-"
         
         scoreContainer.appendChild(selectedScore)
         scoreContainer.appendChild(maxScore)
@@ -162,14 +147,14 @@ const updatePlayerHandsDisplay = function(): void {
                 cardElement.textContent = card.name
                 cardElement.addEventListener("click", () => {
                     cardElement.classList.toggle("selected")
-                    const selectedCards = player.getSelectedCards()
                     if (cardElement.classList.contains("selected")) {
-                        playerManagement.updatePlayerSelectedCards(i, [...selectedCards, card])
+                        playerManagement.addPlayerSelectedCard(i, card)
                     } else {
-                        playerManagement.updatePlayerSelectedCards(i, selectedCards.filter(c => c !== card))
+                        playerManagement.removePlayerSelectedCard(i, card)
                     }
                     updatePlayerScore(i)
                 })
+                updatePlayerScore(i)
                 cards.appendChild(cardElement)
             })
         }

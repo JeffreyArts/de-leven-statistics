@@ -1,7 +1,7 @@
-import { Card } from "../models/card"
-import berekenHandwaarde from "../utilities/bereken-handwaarde"
+import { Player } from "../models/player"
 import { Deck } from "../models/deck"
-import { Player, PlayerSerialization } from "../models/player"
+import { Card } from "../models/card"
+import { PlayerSerialization } from "../models/player"
 
 export class PlayerManagementService {
     private playerCount: number
@@ -27,7 +27,12 @@ export class PlayerManagementService {
         const savedPlayers = localStorage.getItem("players")
         if (savedPlayers) {
             const playersData: Array<[number, PlayerSerialization]> = JSON.parse(savedPlayers)
-            this.players = playersData.map(([_, data]) => Player.fromSerialization(data))
+            this.players = playersData.map(([, data]) => {
+                const player = Player.fromSerialization(data)
+                // Reset selectedCards bij het laden
+                player.getSelectedCards().forEach(card => player.removeSelectedCard(card))
+                return player
+            })
             this.playerCount = this.players.length
         }
     }
@@ -72,17 +77,21 @@ export class PlayerManagementService {
         if (player) {
             player.setName(name)
             this.savePlayers()
-        } else {
-            const newPlayer = new Player(name)
-            this.players[playerNumber - 1] = newPlayer
+        }
+    }
+
+    public addPlayerSelectedCard(playerNumber: number, card: Card): void {
+        const player = this.players[playerNumber - 1]
+        if (player) {
+            player.addSelectedCard(card)
             this.savePlayers()
         }
     }
 
-    public updatePlayerSelectedCards(playerNumber: number, selectedCards: Card[]): void {
+    public removePlayerSelectedCard(playerNumber: number, card: Card): void {
         const player = this.players[playerNumber - 1]
         if (player) {
-            player.setSelectedCards(selectedCards)
+            player.removeSelectedCard(card)
             this.savePlayers()
         }
     }
@@ -108,7 +117,8 @@ export class PlayerManagementService {
             // Verwijder de geselecteerde kaarten uit de hand
             const remainingCards = player.getHand().filter(card => !selectedCards.includes(card))
             player.setHand(remainingCards)
-            player.setSelectedCards([])
+            // Reset geselecteerde kaarten door ze één voor één te verwijderen
+            selectedCards.forEach(card => player.removeSelectedCard(card))
             
             // Vul de hand aan tot 5 kaarten
             const cardsToDraw = 5 - remainingCards.length
@@ -137,13 +147,14 @@ export class PlayerManagementService {
             this.deck.discard(player.getHand())
         })
 
-        // Reset de handen
+        // Reset de handen maar behoud de spelernamen
+        const playerNames = this.players.map(player => player.getName())
         this.players = []
         
         // Deel 5 kaarten aan elke speler
         for (let i = 0; i < this.playerCount; i++) {
             const playerCards = this.deck.draw(5)
-            const player = new Player(`Speler ${i + 1}`)
+            const player = new Player(playerNames[i] || `Speler ${i + 1}`)
             player.setHand(playerCards)
             this.players.push(player)
         }
@@ -160,7 +171,8 @@ export class PlayerManagementService {
         // Maak alle handen leeg
         this.players.forEach(player => {
             player.setHand([])
-            player.setSelectedCards([])
+            // Reset geselecteerde kaarten door ze één voor één te verwijderen
+            player.getSelectedCards().forEach(card => player.removeSelectedCard(card))
         })
         
         this.savePlayers()
@@ -175,7 +187,8 @@ export class PlayerManagementService {
     public clearPlayerHands(): void {
         this.players.forEach(player => {
             player.setHand([])
-            player.setSelectedCards([])
+            // Reset geselecteerde kaarten door ze één voor één te verwijderen
+            player.getSelectedCards().forEach(card => player.removeSelectedCard(card))
         })
         this.savePlayers()
     }

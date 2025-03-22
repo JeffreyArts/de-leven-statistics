@@ -1,12 +1,9 @@
 import { Card, CardName } from "./card"
+import berekenScoreRange from "../utilities/bereken-score-range"
 
 export interface PlayerSerialization {
     name: string;
     hand: CardName[];
-    selectedCards: CardName[];
-    scoreRange: [number, number];
-    selectedScoreRange: [number, number];
-    handValue: number;
 }
 
 export class Player {
@@ -53,10 +50,20 @@ export class Player {
 
     public setHand(hand: Card[]): void {
         this.hand = hand
+        console.log(this.hand)
+        this.updateScoreRange()
     }
 
-    public setSelectedCards(selectedCards: Card[]): void {
-        this.selectedCards = selectedCards
+    public addSelectedCard(card: Card): void {
+        if (!this.selectedCards.includes(card)) {
+            this.selectedCards.push(card)
+            this.updateSelectedScoreRange()
+        }
+    }
+
+    public removeSelectedCard(card: Card): void {
+        this.selectedCards = this.selectedCards.filter(c => c !== card)
+        this.updateSelectedScoreRange()
     }
 
     public setScoreRange(scoreRange: [number, number]): void {
@@ -71,25 +78,28 @@ export class Player {
         this.handValue = handValue
     }
 
+    // Helper methodes voor het updaten van de score ranges
+    private updateScoreRange(): void {
+        this.scoreRange = berekenScoreRange(this.hand)
+    }
+
+    private updateSelectedScoreRange(): void {
+        this.selectedScoreRange = berekenScoreRange(this.selectedCards)
+    }
+
     // Serialisatie methodes
     public toSerialization(): PlayerSerialization {
         return {
             name: this.name,
-            hand: this.hand.map(card => card.name),
-            selectedCards: this.selectedCards.map(card => card.name),
-            scoreRange: this.scoreRange,
-            selectedScoreRange: this.selectedScoreRange,
-            handValue: this.handValue
+            hand: this.hand.map(card => card.name)
         }
     }
 
     public static fromSerialization(serialization: PlayerSerialization): Player {
         const player = new Player(serialization.name)
         player.hand = serialization.hand.map(cardName => new Card(cardName))
-        player.selectedCards = serialization.selectedCards.map(cardName => new Card(cardName))
-        player.scoreRange = serialization.scoreRange
-        player.selectedScoreRange = serialization.selectedScoreRange
-        player.handValue = serialization.handValue
+        // Bereken de score ranges opnieuw
+        player.updateScoreRange()
         return player
     }
 } 
