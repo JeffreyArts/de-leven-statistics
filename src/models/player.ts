@@ -50,7 +50,6 @@ export class Player {
 
     public setHand(hand: Card[]): void {
         this.hand = hand
-        console.log(this.hand)
         this.updateScoreRange()
     }
 

@@ -42,7 +42,7 @@ const updateDeckUI = function() {
         if (countEl) {
             const count = deckCard ? decks[currentDeckIndex].getCards().filter(dc => dc.name === card.name).length : 0
             countEl.textContent = count.toString()
-            console.log(deckCard, count, minusButton)
+
             // Update de minus knop status
             if (minusButton) {
                 if (count <= 0) {
