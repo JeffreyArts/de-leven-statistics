@@ -1,4 +1,5 @@
 import "./scss/main.scss"
+import { NavigationService } from "./services/navigation.service"
 
 const nav = [
     { text: "Home", link: "/pages/home" },
@@ -17,3 +18,6 @@ if (navEl) {
         navEl.appendChild(a)
     })
 }
+
+// Initialiseer de navigatie service
+NavigationService.getInstance()
