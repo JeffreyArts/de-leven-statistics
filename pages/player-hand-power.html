@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Hand Power</title>
+</head>
+<body class="player-hand-power">
+    <section id="player-management">
+        <h2>Speler beheer</h2>
+        <div class="player-controls">
+            <div class="player-count-controls">
+                <button id="decrease-players" disabled>-</button>
+                <input type="number" id="player-count" value="2" min="2" max="8">
+                <button id="increase-players">+</button>
+                <button id="deal-cards">Deel kaarten</button>
+            </div>
+        </div>
+        <div class="player-list">
+            <h3>Actieve spelers</h3>
+            <div id="player-hands-list"></div>
+        </div>
+    </section>
+    
+    <section id="deck-management">
+        <h2>Beschikbare decks</h2>
+        <div class="deck-list">
+            <ul id="decks-list"></ul>
+        </div>
+    </section>
+
+
+    <section class="info-boxes" id="info-boxes">
+        <div class="info-box">
+            <strong class="info-box-name">Kaarten in deck</strong>
+            <span class="info-box-value" id="cards-in-deck">0</span>
+        </div>
+        <div class="info-box">
+            <strong class="info-box-name">Kaarten in discard</strong>
+            <span class="info-box-value" id="cards-in-discard">0</span>
+        </div>
+    </section>
+
+    <section class="info-graph" id="info-graph">
+        <svg id="chart"></svg>
+    </section>
+
+    <script type="module" src="/src/pages/player-hand-power.ts"></script>
+</body>
+</html> 
