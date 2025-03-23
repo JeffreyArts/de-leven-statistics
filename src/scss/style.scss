@@ -2,15 +2,7 @@
 * {
     box-sizing: border-box;
 }
-:root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-    
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-    
+:root {    
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -19,6 +11,11 @@
 
 body {
     margin: 0;
+    margin: 0;
+    display: flex;
+    background-color: #222;
+    color: #fff;
+    font-family: var(--default-font);
 }
 
 table {
@@ -69,4 +66,24 @@ tr.selected {
     border-radius: 2px;
     font-size: 8px;
 
+}
+
+aside {
+    width: 320px;
+    min-height: 100vh;
+}
+
+#nav a {
+    color: #fff;
+    display: inline-block;
+    width: 100%;
+    padding: 20px;
+    text-decoration: none;
+    font-family: FixedSys;
+}
+
+#contentPage {
+    height: 100vh;
+    width: calc( 100% - 320px);
+    border: 0 none transparent
 }

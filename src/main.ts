@@ -1,4 +1,4 @@
-import "./scss/main.scss"
+import "./scss/style.scss"
 import { NavigationService } from "./services/navigation.service"
 
 const nav = [

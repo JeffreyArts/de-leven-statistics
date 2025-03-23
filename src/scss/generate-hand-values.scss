@@ -8,10 +8,6 @@
 }
 
 #hand-overview {
-    background: var(--card-background);
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: var(--card-shadow);
     grid-column: span 4;
 
     h2 {
@@ -52,10 +48,6 @@
 }
 
 #output-section {
-    background: var(--card-background);
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: var(--card-shadow);
     grid-column: span 4;
     grid-row: span 2;
 
@@ -85,11 +77,6 @@
 }
 
 .status-box {
-    background: var(--card-background);
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: var(--card-shadow);
-
     .status-name {
         display: block;
         margin-bottom: 0.5rem;
@@ -101,9 +88,3 @@
         font-weight: bold;
     }
 }
-
-#stop-section {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-} 
