@@ -40,11 +40,11 @@
 #info-boxes {
     display: block;
     margin-top: 40px;
-    grid-column: span 4;
+    grid-column: span 8;
 }
 
 #kansen-lijst {
-    grid-column: span 4;
+    grid-column: span 8;
     aspect-ratio: 1;
     overflow: auto;
     
@@ -107,6 +107,21 @@
     translate: -50% -50%;
 }
 
+@media (min-width: 640px) {
+    #hand-overview {
+        grid-column: span 8;
+    }
+    #info-graph {
+        grid-column: span 8;
+    }
+    #info-boxes {
+        grid-column: span 4;
+    }
+    #kansen-lijst {
+        grid-column: span 4;
+    }
+}
+
 @media (min-width: 768px) {
     .hand-power-visualizer {
         grid-template-columns: repeat(12, 1fr);
@@ -114,8 +129,14 @@
     #hand-overview {
         grid-column: span 12;
     }
+    #info-graph {
+        grid-column: span 12;
+    }
     #info-boxes {
-        grid-column: span 4;
+        grid-column: span 6;
+    }
+    #kansen-lijst {
+        grid-column: span 6;
     }
 }
 @media (min-width: 1180px) {
@@ -127,5 +148,8 @@
     }
     #info-boxes {
         grid-column: span 3;
+    }
+    #kansen-lijst {
+        grid-column: span 4;
     }
 }
