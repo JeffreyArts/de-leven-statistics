@@ -29,6 +29,10 @@ const status = document.getElementById("status") as HTMLSpanElement
 const copyButton = document.getElementById("copy-button") as HTMLButtonElement
 const downloadButton = document.getElementById("download-button") as HTMLButtonElement
 
+// Verberg de knoppen bij het laden
+copyButton.style.display = "none"
+downloadButton.style.display = "none"
+
 let shouldStop = false
 
 // Functie om alle mogelijke combinaties te genereren
@@ -43,7 +47,7 @@ function genereerCombinaties(kaarten: Card[], min: number, max: number): Card[][
     
     function combineer(huidige: Card[], start: number, diepte: number) {
         // 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻 TIJDELIJK MAXIMAAL 16 COMBINATIES
-        if (resultaat.length >= 16) return
+        // if (resultaat.length >= 16) return
         
         if (diepte >= min && diepte <= max) {
             resultaat.push([...huidige])
@@ -198,7 +202,13 @@ generateButton.addEventListener("click", async () => {
     const jsonString = JSON.stringify(throws, null, 2)
     textarea.value = jsonString
     
-    status.textContent = shouldStop ? "Genereren gestopt" : "Klaar! Je kunt nu de JSON kopiëren."
+    // Toon de knoppen als er data is
+    if (jsonString) {
+        copyButton.style.display = "inline-block"
+        downloadButton.style.display = "inline-block"
+    }
+    
+    status.textContent = shouldStop ? "Genereren gestopt" : "Klaar! Je kunt nu de JSON kopiëren of downloaden."
     generateButton.disabled = false
     stopButton.disabled = true
     stopButton.style.display = "none"
