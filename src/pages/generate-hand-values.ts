@@ -1,5 +1,6 @@
 import "/src/scss/style.scss"
 import "/src/scss/buttons.scss"
+import "/src/scss/generate-hand-values.scss"
 import {Card, CardTypes} from "./../models/card"
 import berekenScoreRange from "../utilities/bereken-score-range"
 
@@ -17,30 +18,15 @@ for(let i = 0; i < CardTypes.length; i++) {
     hand.push(new Card(CardTypes[i]))
 }
 
-// Maak de UI elementen
-const container = document.createElement("div")
-container.classList.add("container")
-document.body.appendChild(container)
+// Selecteer de UI elementen
+const generateButton = document.getElementById("generate-button") as HTMLButtonElement
+const stopButton = document.getElementById("stop-button") as HTMLButtonElement
+const simulationCountInput = document.getElementById("simulation-count") as HTMLInputElement
+const textarea = document.getElementById("output-textarea") as HTMLTextAreaElement
+const status = document.getElementById("status") as HTMLSpanElement
+const copyButton = document.getElementById("copy-button") as HTMLButtonElement
 
-const title = document.createElement("h1")
-title.textContent = "Genereer Hand Waarden"
-container.appendChild(title)
-
-const button = document.createElement("button")
-button.textContent = "Genereer combinaties"
-button.classList.add("primary-button")
-container.appendChild(button)
-
-const textarea = document.createElement("textarea")
-textarea.style.width = "100%"
-textarea.style.height = "400px"
-textarea.style.marginTop = "20px"
-textarea.style.padding = "10px"
-container.appendChild(textarea)
-
-const status = document.createElement("div")
-status.style.marginTop = "10px"
-container.appendChild(status)
+let shouldStop = false
 
 // Functie om alle mogelijke combinaties te genereren
 function genereerCombinaties(kaarten: Card[], min: number, max: number): Card[][] {
@@ -64,16 +50,48 @@ function genereerCombinaties(kaarten: Card[], min: number, max: number): Card[][
     return resultaat
 }
 
+// Event listener voor de stop knop
+stopButton.addEventListener("click", () => {
+    shouldStop = true
+    stopButton.disabled = true
+    status.textContent = "Stoppen..."
+})
+
+// Event listener voor de copy knop
+copyButton.addEventListener("click", async () => {
+    try {
+        await navigator.clipboard.writeText(textarea.value)
+        status.textContent = "Gekopieerd naar klembord!"
+        setTimeout(() => {
+            status.textContent = "Klaar! Je kunt nu de JSON kopiëren."
+        }, 2000)
+    } catch (err) {
+        status.textContent = "Kon niet kopiëren naar klembord"
+    }
+})
+
 // Event listener voor de knop
-button.addEventListener("click", async () => {
-    button.disabled = true
+generateButton.addEventListener("click", async () => {
+    // Reset de stop status
+    shouldStop = false
+    stopButton.style.display = "block"
+    stopButton.disabled = false
+    generateButton.disabled = true
     status.textContent = "Bezig met genereren... 0 combinaties verwerkt"
+    
+    // Haal het aantal simulaties op
+    const simulationCount = parseInt(simulationCountInput.value) || 1000000
     
     // Genereer alle mogelijke combinaties van 1 tot 5 kaarten
     const alleCombinaties = genereerCombinaties(hand, 1, 5)
     let verwerkteCombinaties = 0
     
     for (const combinatie of alleCombinaties) {
+        if (shouldStop) {
+            status.textContent = "Genereren gestopt"
+            break
+        }
+
         const kaarten = combinatie.map(card => card.name)
         
         // Bepaal appliedToSelf
@@ -97,7 +115,7 @@ button.addEventListener("click", async () => {
         const switchPosition = kaarten.includes("Wissel positie")
         
         // Bereken de range voor deze combinatie
-        const range = berekenScoreRange(combinatie, 10000000)
+        const range = berekenScoreRange(combinatie, simulationCount)
         
         throws.push({
             kaarten: [kaarten.join(", ")],
@@ -118,6 +136,8 @@ button.addEventListener("click", async () => {
     const jsonString = JSON.stringify(throws, null, 2)
     textarea.value = jsonString
     
-    status.textContent = "Klaar! Je kunt nu de JSON kopiëren."
-    button.disabled = false
+    status.textContent = shouldStop ? "Genereren gestopt" : "Klaar! Je kunt nu de JSON kopiëren."
+    generateButton.disabled = false
+    stopButton.disabled = true
+    stopButton.style.display = "none"
 }) 
