@@ -2,7 +2,6 @@ import "/src/scss/style.scss"
 import "/src/scss/buttons.scss"
 import "/src/scss/generate-hand-values.scss"
 import {Card, CardTypes} from "./../models/card"
-import berekenScoreRange from "../utilities/bereken-score-range"
 import berekenHandwaarde from "../utilities/bereken-worp"
 
 const hand = [] as Array<Card>

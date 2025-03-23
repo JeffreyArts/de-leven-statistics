@@ -1,24 +1,44 @@
-import "./scss/style.scss"
+import "/src/scss/style.scss"
 import { NavigationService } from "./services/navigation.service"
 
-const nav = [
-    { text: "Home", link: "/pages/home" },
-    { text: "Hand Power Visualizer", link: "/pages/hand-power-visualizer" },
-    { text: "Deck Builder", link: "/pages/deck-builder" },
-    { text: "Player Hand Power", link: "/pages/player-hand-power" },
-    { text: "Genereer Hand Waarden", link: "/pages/generate-hand-values" },
+const nav = document.querySelector("#nav")
+const contentPage = document.querySelector("#contentPage") as HTMLIFrameElement
+
+const routes = [
+    { path: "/", name: "Home", file: "/pages/home.html" },
+    { path: "/deck-builder", name: "Deck Builder", file: "/pages/deck-builder.html" },
+    { path: "/hand-power-visualizer", name: "Hand Power Visualizer", file: "/pages/hand-power-visualizer.html" },
+    { path: "/player-hand-power", name: "Player Hand Power", file: "/pages/player-hand-power.html" },
+    { path: "/generate-hand-values", name: "Generate Hand Values", file: "/pages/generate-hand-values.html" }
 ]
 
-const navEl = document.getElementById("nav")
-if (navEl) {
-    nav.forEach(item => {
-        const a = document.createElement("a")
-        a.href = item.link
-        a.innerHTML = item.text
-        a.target = "contentPage"
-        navEl.appendChild(a)
-    })
+// Functie om te navigeren
+const navigate = (path: string, file: string) => {
+    contentPage.src = file
+    window.history.pushState({ path }, "", path)
 }
+
+// Genereer de navigatie
+routes.forEach(route => {
+    const a = document.createElement("a")
+    a.href = route.path
+    a.textContent = route.name
+    a.addEventListener("click", (e) => {
+        e.preventDefault()
+        navigate(route.path, route.file)
+    })
+    nav?.appendChild(a)
+})
+
+// Handle browser back/forward buttons
+window.addEventListener("popstate", () => {
+    const route = routes.find(r => r.path === window.location.pathname) || routes[0]
+    contentPage.src = route.file
+})
+
+// Stel de initiële pagina in
+const initialRoute = routes.find(r => r.path === window.location.pathname) || routes[0]
+navigate(initialRoute.path, initialRoute.file)
 
 // Initialiseer de navigatie service
 NavigationService.getInstance()

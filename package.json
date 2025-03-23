@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "deploy": "NODE_ENV=production bash scripts/deploy.sh",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
     "@stylistic/eslint-plugin-ts": "^2.13.0",
+    "@types/node": "^22.13.11",
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",

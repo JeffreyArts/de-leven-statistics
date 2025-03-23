@@ -3,7 +3,6 @@ import "/src/scss/buttons.scss"
 import "/src/scss/player-hand-power.scss"
 import { PlayerManagementService } from "../services/player-management.service"
 import { Deck, DeckSerialization } from "../models/deck"
-import berekenScoreRange from "../utilities/bereken-score-range"
 
 // Laad de beschikbare decks
 const decks: Deck[] = JSON.parse(localStorage.getItem("decks") || "[]").map((d: DeckSerialization) => Deck.fromSerialization(d))

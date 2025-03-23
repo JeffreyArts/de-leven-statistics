@@ -41,7 +41,7 @@ export class NavigationService {
 
     private handleUrlChange(): void {
         const path = window.location.pathname
-        if (path === "/") {
+        if (path === "/" || path === "/home") {
             this.navigateTo(this.defaultPage.replace("/pages/", ""))
         } else {
             this.loadPage(path)

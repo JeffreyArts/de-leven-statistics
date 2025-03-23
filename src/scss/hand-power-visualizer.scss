@@ -38,10 +38,8 @@
 }
 
 #info-boxes {
-    display: grid;
-    gap: 20px;
+    display: block;
     margin-top: 40px;
-    grid-template-columns: 1fr 1fr;
     grid-column: span 4;
 }
 
@@ -80,11 +78,15 @@
     border: 2px solid #fff;
     border-radius: 8px;
     color: #fff;
-    width: 100%;
+    width: calc(50% - 8px);
+    float: left;
     aspect-ratio: 1;
     justify-content: space-between;
     align-items: center;
     position: relative;
+    +.info-box {
+        margin-left: 16px;
+    }
 }
 
 .info-box-name {
