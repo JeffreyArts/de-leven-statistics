@@ -7,9 +7,9 @@ const contentPage = document.querySelector("#contentPage") as HTMLIFrameElement
 const routes = [
     { path: "/", name: "Home", file: "/pages/home.html" },
     { path: "/deck-builder", name: "Deck Builder", file: "/pages/deck-builder.html" },
-    { path: "/hand-power-visualizer", name: "Hand Power Visualizer", file: "/pages/hand-power-visualizer.html" },
-    { path: "/player-hand-power", name: "Player Hand Power", file: "/pages/player-hand-power.html" },
-    { path: "/generate-hand-values", name: "Generate Hand Values", file: "/pages/generate-hand-values.html" }
+    { path: "/hand-power-visualizer", name: "Kaartkracht graph", file: "/pages/hand-power-visualizer.html" },
+    { path: "/player-hand-power", name: "Speler handkracht", file: "/pages/player-hand-power.html" },
+    { path: "/generate-hand-values", name: "Genereer hand combinaties", file: "/pages/generate-hand-values.html" }
 ]
 
 // Functie om te navigeren
