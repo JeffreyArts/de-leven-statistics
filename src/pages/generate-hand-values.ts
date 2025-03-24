@@ -144,6 +144,7 @@ generateButton.addEventListener("click", async () => {
         // Bepaal appliedToSelf
         const appliedToSelf = !kaarten.some(card => 
             card === "Speler links" || 
+            card === "Iedereen" || 
             card === "Speler rechts" || 
             card === "Links, rechts"
         )
@@ -152,9 +153,11 @@ generateButton.addEventListener("click", async () => {
         let appliedToOthers = 0
         if (kaarten.includes("Speler links") || kaarten.includes("Speler rechts")) {
             appliedToOthers = 1
-        } else if (kaarten.includes("Links, rechts")) {
+        }
+        if (kaarten.includes("Links, rechts")) {
             appliedToOthers = 2
-        } else if (kaarten.includes("Iedereen")) {
+        }
+        if (kaarten.includes("Iedereen")) {
             appliedToOthers = 99
         }
         

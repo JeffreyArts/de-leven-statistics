@@ -1,10 +1,10 @@
 import "/src/scss/style.scss"
 import "/src/scss/buttons.scss"
 import "/src/scss/hand-power.scss"
-import {Card, CardTypes} from "./../models/card"
+import {Card, CardName, CardTypes} from "./../models/card"
 
 interface HandWaarde {
-    kaarten: string[];
+    kaarten: CardName[];
     range: [number, number];
     appliedToSelf: boolean;
     switchPosition: boolean;
@@ -16,45 +16,22 @@ interface HandWaarde {
 }
 
 const hand = [] as Array<Card>
+const selectedCards = new Map<string, number>() // Houdt bij hoeveel van elke kaart is geselecteerd
 const handWaarden = (await import("../hand-waarden.json")).default as HandWaarde[]
+const MAX_SELECTED_CARDS = 5
 
 for(let i = 0; i < CardTypes.length; i++) {
     hand.push(new Card(CardTypes[i]))
 }
 
-const selectCard = function(event: Event) {
-    const targetEl = event.target as HTMLElement
-    if (!targetEl) {
-        return
-    }
-
-    const targetRow = targetEl.closest("tr")
-    if (!targetRow) {
-        return
-    }
-
-    const buttonEl = targetRow.querySelector("button")
-    if (!buttonEl) {
-        return
-    }
-
-    if (buttonEl.innerHTML === "-") {
-        buttonEl.innerHTML = "+"
-        targetRow.classList.remove("selected")
-    } else {
-        buttonEl.innerHTML = "-"
-        targetRow.classList.add("selected")
-    }
-    const card = hand.find(card => `card-${card.id}` ===  targetRow.id)
-    if (card) {
-        card.selected = !card.selected
-        updateHandWaarden()
-    }
-}
-
 function updateHandWaarden() {
-    const selectedCards = hand.filter(card => card.selected)
-    const selectedCardNames = selectedCards.map(card => card.name)
+    // Converteer de selectedCards Map naar een array van kaartnamen
+    const selectedCardNames: CardName[] = []
+    selectedCards.forEach((count, cardName) => {
+        for (let i = 0; i < count; i++) {
+            selectedCardNames.push(cardName as CardName)
+        }
+    })
     
     // Zoek de hand-waarden die overeenkomen met de geselecteerde kaarten
     const matchingHand = handWaarden.find((hand: HandWaarde) => {
@@ -64,8 +41,22 @@ function updateHandWaarden() {
 
     if (matchingHand) {
         console.log("Gevonden hand-waarden:", matchingHand)
-        drawChart(matchingHand)
+        return drawChart(matchingHand)
     }
+    drawChart()
+}
+
+function updateSelectedCount() {
+    // Update de teller voor elke kaart
+    hand.forEach(card => {
+        if (card.tr) {
+            const countEl = card.tr.querySelector("td:nth-child(3)")
+            if (countEl) {
+                const count = selectedCards.get(card.name) || 0
+                countEl.innerHTML = count.toString()
+            }
+        }
+    })
 }
 
 // add cards from hand to #table
@@ -75,21 +66,83 @@ if (table) {
         const tr = document.createElement("tr")
         const tdName = document.createElement("td")
         const tdDescr = document.createElement("td")
+        const tdCount = document.createElement("td")
         const tdButton = document.createElement("td")
-        const button = document.createElement("button")
+        const buttonContainer = document.createElement("div")
+        const plusButton = document.createElement("button")
+        const minusButton = document.createElement("button")
     
         table.appendChild(tr)
         tr.appendChild(tdName)
         tr.appendChild(tdDescr)
+        tr.appendChild(tdCount)
         tr.appendChild(tdButton)
-        tdButton.appendChild(button)
+        tdButton.appendChild(buttonContainer)
+        buttonContainer.appendChild(plusButton)
+        buttonContainer.appendChild(minusButton)
     
         tdName.innerHTML = card.name
         tdDescr.innerHTML = card.description
+        tdCount.innerHTML = "0"
     
-        button.innerHTML = "+"  
-        button.classList.add("addition-button")
-        tr.addEventListener("click", selectCard)
+        plusButton.innerHTML = "+"
+        minusButton.innerHTML = "-"
+        
+        plusButton.classList.add("addition-button", "plus-btn")
+        minusButton.classList.add("addition-button", "minus-btn", "__isDisabled")
+        
+        plusButton.addEventListener("click", () => {
+            const totalSelected = Array.from(selectedCards.values()).reduce((a, b) => a + b, 0)
+            if (totalSelected < MAX_SELECTED_CARDS) {
+                // Voeg kaart toe aan geselecteerde kaarten
+                const currentCount = selectedCards.get(card.name) || 0
+                selectedCards.set(card.name, currentCount + 1)
+                
+                minusButton.classList.remove("__isDisabled")
+                updateSelectedCount()
+                updateHandWaarden()
+                
+                // Alleen de plus knoppen uitschakelen als we het maximum bereiken
+                if (totalSelected + 1 >= MAX_SELECTED_CARDS) {
+                    hand.forEach(c => {
+                        if (c.tr) {
+                            const plusBtn = c.tr.querySelector(".plus-btn")
+                            if (plusBtn && !c.selected) {
+                                plusBtn.classList.add("__isDisabled")
+                            }
+                        }
+                    })
+                }
+            }
+        })
+        
+        minusButton.addEventListener("click", () => {
+            // Verwijder kaart van geselecteerde kaarten
+            const currentCount = selectedCards.get(card.name) || 0
+            if (currentCount > 0) {
+                selectedCards.set(card.name, currentCount - 1)
+                if (currentCount - 1 === 0) {
+                    minusButton.classList.add("__isDisabled")
+                }
+            }
+            
+            // Plus knoppen weer inschakelen als we onder het maximum komen
+            const totalSelected = Array.from(selectedCards.values()).reduce((a, b) => a + b, 0)
+            if (totalSelected < MAX_SELECTED_CARDS) {
+                hand.forEach(c => {
+                    if (c.tr) {
+                        const plusBtn = c.tr.querySelector(".plus-btn")
+                        if (plusBtn) {
+                            plusBtn.classList.remove("__isDisabled")
+                        }
+                    }
+                })
+            }
+            
+            updateSelectedCount()
+            updateHandWaarden()
+        })
+        
         tr.id = `card-${card.id}`
         card.tr = tr
     })
@@ -167,50 +220,92 @@ function drawChart(matchingHand?: HandWaarde) {
         svg.appendChild(text)
     }
 
-    // Teken de range voor de juiste spelers
+    let appliedToSelf = true
+    let appliedToOthers = 0
+    let range: [number, number] = [1, 6]
+    let kaarten = [] as CardName[]
+    let kansen = [
+        {
+            "waarde": 1,
+            "percentage": 16
+        },
+        {
+            "waarde": 2,
+            "percentage": 16
+        },
+        {
+            "waarde": 3,
+            "percentage": 16
+        },
+        {
+            "waarde": 4,
+            "percentage": 16
+        },
+        {
+            "waarde": 5,
+            "percentage": 16
+        },
+        {
+            "waarde": 6,
+            "percentage": 16
+        }
+    ]
+
+    
+    
     if (matchingHand) {
-        console.log("Matching hand:", matchingHand)
-        const { appliedToSelf, appliedToOthers, kansen, range } = matchingHand
+        ({ appliedToSelf, appliedToOthers, kansen, range, kaarten } = matchingHand)
+    }
+    // Teken de range voor de juiste spelers
         
-        // Bereken de maximale kans voor deze specifieke hand
-        const maxPercentage = Math.max(...kansen.map(k => k.percentage))
+    // Bereken de maximale kans voor deze specifieke hand
+    const maxPercentage = Math.max(...kansen.map(k => k.percentage))
         
-        // Bereken de schaal voor de dikte van de range
-        // Gebruik een logaritmische schaling voor betere visualisatie
-        const scale = 5 / Math.log10(maxPercentage + 1)
+    // Bereken de schaal voor de dikte van de range
+    // Gebruik een logaritmische schaling voor betere visualisatie
+    const scale = 5 / Math.log10(maxPercentage + 1)
+    // Teken range voor speler 2 (jij) als appliedToSelf true is
+    if (appliedToSelf) {
+        console.log("appliedToSelf", appliedToSelf)
+        drawRangeCurve(svg, kansen, 1, startX, scale, range)
+    }
         
-        // Teken range voor speler 2 (jij) als appliedToSelf true is
-        if (appliedToSelf) {
-            drawRangeCurve(svg, kansen, height/2, playerColors[1], startX, lineLength, scale, range)
+    console.log("kaarten", kaarten)
+    // Teken range voor speler links als appliedToOthers 1 of 2 is
+    if (appliedToOthers == 1) {
+        if (kaarten.includes("Speler links")) {
+            drawRangeCurve(svg, kansen, 0, startX, scale, range)
         }
-        
-        // Teken range voor speler links als appliedToOthers 1 of 2 is
-        if (appliedToOthers >= 1) {
-            drawRangeCurve(svg, kansen, height/2 - 15, playerColors[0], startX, lineLength, scale, range)
-        }
-        
-        // Teken range voor speler rechts als appliedToOthers 1 of 2 is
-        if (appliedToOthers >= 1) {
-            drawRangeCurve(svg, kansen, height/2 + 15, playerColors[2], startX, lineLength, scale, range)
+        if (kaarten.includes("Speler rechts")) {
+            drawRangeCurve(svg, kansen, 2, startX, scale, range)
         }
     }
+        
+    // Teken range voor speler rechts als appliedToOthers 1 of 2 is
+    if (appliedToOthers >= 2) {
+        drawRangeCurve(svg, kansen, 0, startX, scale, range)
+        drawRangeCurve(svg, kansen, 2, startX, scale, range)
+    }
+    
 }
 
 function drawRangeCurve(
     svg: SVGElement,
     kansen: Array<{ waarde: number; percentage: number }>,
-    y: number,
-    color: string,
+    spelerIndex: number,
     startX: number,
-    lineLength: number,
     scale: number,
     range: [number, number]
 ) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    const height = 50
+    const y = height/2 + (spelerIndex-1)*15
+    const playerColors = ["#90f", "#f09", "#0f9"]
+    const color = playerColors[spelerIndex]
     
     // Bereken de x-posities voor het begin en einde van de range
     const rangeStartX = startX + range[0]
-    const rangeEndX = startX + range[1]
+    
     
     // Begin het pad bij het begin van de range
     let d = `M ${rangeStartX} ${y}`

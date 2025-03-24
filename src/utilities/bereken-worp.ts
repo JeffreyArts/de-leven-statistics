@@ -12,14 +12,22 @@ const berekenWorp = function(kaarten: Card[], aantalWorpen = 1) {
         let diceResult = 0
         let achterwaarts = false
 
+        // Verwijder alle "Meerdere dobbelstenen" kaarten behalve één
+        const meerdereDobbelstenenKaarten = kaarten.filter(card => card.name === "Meerdere dobbelstenen")
+        if (meerdereDobbelstenenKaarten.length > 1) {
+            // Verwijder alle "Meerdere dobbelstenen" kaarten
+            kaarten = kaarten.filter(card => card.name !== "Meerdere dobbelstenen")
+            // Voeg er één terug toe
+            kaarten.push(meerdereDobbelstenenKaarten[0])
+        }
+        if (meerdereDobbelstenenKaarten.length == 1) {
+            dice = Math.ceil(Math.random() * 6)
+        }
+
         // Verwerk extra dobbelsteen
         kaarten.forEach(card => {  
             if (card.name == "Extra dobbelsteen") {
                 dice ++
-            }
-
-            if (card.name == "Meerdere dobbelstenen") {
-                dice = Math.ceil(Math.random() * 6)
             }
 
             if (card.name == "Dubbele worp") {

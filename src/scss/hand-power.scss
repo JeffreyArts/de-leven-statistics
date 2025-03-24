@@ -7,30 +7,27 @@
 
 #hand-overview {
     grid-column: span 8;
-    margin: 0;
-    border-collapse: collapse;
     width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
     color: #fff;
-    
+
     th {
         color: #f09;
         text-align: left;
         padding: 8px;
         position: sticky;
         top: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
+
     td {
         padding: 8px;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
+
     tr:hover {
         background-color: rgba(255, 255, 255, 0.1);
-    }
-    
-    tr.selected {
-        background-color: #f09;
     }
 }
 
