@@ -14,13 +14,19 @@ for(let i = 0; i < CardTypes.length; i++) {
 
 
 const selectCard = function(event: Event) {
-    const buttonEl = event.target as HTMLButtonElement
-    if (!buttonEl) {
+    const targetEl = event.target as HTMLElement
+    if (!targetEl) {
         return
     }
 
-    const targetRow = buttonEl.parentElement?.parentElement
+    // Zoek de dichtstbijzijnde tr (rij) of gebruik de huidige als het al een tr is
+    const targetRow = targetEl.closest("tr")
     if (!targetRow) {
+        return
+    }
+
+    const buttonEl = targetRow.querySelector("button")
+    if (!buttonEl) {
         return
     }
 
@@ -35,7 +41,6 @@ const selectCard = function(event: Event) {
     if (card) {
         card.selected = !card.selected
     }
-    // console.log(card)
 }
 
 
@@ -60,7 +65,7 @@ if (table) {
     
         button.innerHTML = "+"  
         button.classList.add("addition-button")
-        button.addEventListener("click", selectCard)
+        tr.addEventListener("click", selectCard)
         tr.id = `card-${card.id}`
         card.tr = tr
     })
