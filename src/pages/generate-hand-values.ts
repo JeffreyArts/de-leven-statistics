@@ -37,11 +37,11 @@ let shouldStop = false
 // Functie om alle mogelijke combinaties te genereren
 function genereerCombinaties(kaarten: Card[], min: number, max: number): Card[][] {
     const resultaat: Card[][] = []
-    const kaartTelling = new Map<string, number>()
+    const kaartTelling = [] as typeof CardTypes
     
     // Initialiseer de telling voor elke kaart
     kaarten.forEach(kaart => {
-        kaartTelling.set(kaart.name, 0)
+        kaartTelling.push(kaart.name)
     })
     
     function combineer(huidige: Card[], start: number, diepte: number) {
@@ -56,15 +56,15 @@ function genereerCombinaties(kaarten: Card[], min: number, max: number): Card[][
         
         for (let i = start; i < kaarten.length; i++) {
             const huidigeKaart = kaarten[i]
-            const huidigeTelling = kaartTelling.get(huidigeKaart.name) || 0
+            const huidigeTelling = kaartTelling.filter(k => k === huidigeKaart.name).length
             
             // Controleer of we deze kaart nog meer kunnen gebruiken
             if (huidigeTelling < 5) {
                 huidige.push(huidigeKaart)
-                kaartTelling.set(huidigeKaart.name, huidigeTelling + 1)
+                kaartTelling.push(huidigeKaart.name)
                 combineer(huidige, i, diepte + 1)
                 huidige.pop()
-                kaartTelling.set(huidigeKaart.name, huidigeTelling)
+                kaartTelling.pop()
             }
         }
     }
@@ -182,7 +182,7 @@ generateButton.addEventListener("click", async () => {
         const range = [min, max]
         
         throws.push({
-            kaarten: [kaarten.join(", ")],
+            kaarten: kaarten,  // Gebruik de kaartnamen direct als individuele waardes
             range,
             appliedToSelf,
             switchPosition,
