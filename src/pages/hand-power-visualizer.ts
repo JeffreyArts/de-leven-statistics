@@ -6,43 +6,25 @@ import berekenHandwaarde from "../utilities/bereken-worp"
 
 const hand = [] as Array<Card>
 const throws = [] as number[]
+const selectedCards = new Map<string, number>() // Houdt bij hoeveel van elke kaart is geselecteerd
+const MAX_SELECTED_CARDS = 5
 
 for(let i = 0; i < CardTypes.length; i++) {
-    // const index =i
     hand.push(new Card(CardTypes[i]))
 }
 
-
-const selectCard = function(event: Event) {
-    const targetEl = event.target as HTMLElement
-    if (!targetEl) {
-        return
-    }
-
-    // Zoek de dichtstbijzijnde tr (rij) of gebruik de huidige als het al een tr is
-    const targetRow = targetEl.closest("tr")
-    if (!targetRow) {
-        return
-    }
-
-    const buttonEl = targetRow.querySelector("button")
-    if (!buttonEl) {
-        return
-    }
-
-    if (buttonEl.innerHTML === "-") {
-        buttonEl.innerHTML = "+"
-        targetRow.classList.remove("selected")
-    } else {
-        buttonEl.innerHTML = "-"
-        targetRow.classList.add("selected")
-    }
-    const card = hand.find(card => `card-${card.id}` ===  targetRow.id)
-    if (card) {
-        card.selected = !card.selected
-    }
+function updateSelectedCount() {
+    // Update de teller voor elke kaart
+    hand.forEach(card => {
+        if (card.tr) {
+            const countEl = card.tr.querySelector("td:nth-child(3)")
+            if (countEl) {
+                const count = selectedCards.get(card.name) || 0
+                countEl.innerHTML = count.toString()
+            }
+        }
+    })
 }
-
 
 // add cards from hand to #table
 const table = document.querySelector("#hand-overview tbody")
@@ -51,21 +33,83 @@ if (table) {
         const tr = document.createElement("tr")
         const tdName = document.createElement("td")
         const tdDescr = document.createElement("td")
+        const tdCount = document.createElement("td")
         const tdButton = document.createElement("td")
-        const button = document.createElement("button")
+        const buttonContainer = document.createElement("div")
+        const plusButton = document.createElement("button")
+        const minusButton = document.createElement("button")
     
         table.appendChild(tr)
         tr.appendChild(tdName)
         tr.appendChild(tdDescr)
+        tr.appendChild(tdCount)
         tr.appendChild(tdButton)
-        tdButton.appendChild(button)
+        tdButton.appendChild(buttonContainer)
+        buttonContainer.appendChild(plusButton)
+        buttonContainer.appendChild(minusButton)
+        buttonContainer.classList.add("button-container")
     
         tdName.innerHTML = card.name
         tdDescr.innerHTML = card.description
+        tdCount.innerHTML = "0"
+        tdCount.className = "card-count"
     
-        button.innerHTML = "+"  
-        button.classList.add("addition-button")
-        tr.addEventListener("click", selectCard)
+        plusButton.innerHTML = "+"
+        minusButton.innerHTML = "-"
+        
+        plusButton.classList.add("addition-button", "plus-btn")
+        minusButton.classList.add("addition-button", "minus-btn", "__isDisabled")
+        
+        plusButton.addEventListener("click", () => {
+            const totalSelected = Array.from(selectedCards.values()).reduce((a, b) => a + b, 0)
+            if (totalSelected < MAX_SELECTED_CARDS) {
+                // Voeg kaart toe aan geselecteerde kaarten
+                const currentCount = selectedCards.get(card.name) || 0
+                selectedCards.set(card.name, currentCount + 1)
+                
+                minusButton.classList.remove("__isDisabled")
+                updateSelectedCount()
+                
+                // Alleen de plus knoppen uitschakelen als we het maximum bereiken
+                if (totalSelected + 1 >= MAX_SELECTED_CARDS) {
+                    hand.forEach(c => {
+                        if (c.tr) {
+                            const plusBtn = c.tr.querySelector(".plus-btn")
+                            if (plusBtn && !c.selected) {
+                                plusBtn.classList.add("__isDisabled")
+                            }
+                        }
+                    })
+                }
+            }
+        })
+        
+        minusButton.addEventListener("click", () => {
+            // Verwijder kaart van geselecteerde kaarten
+            const currentCount = selectedCards.get(card.name) || 0
+            if (currentCount > 0) {
+                selectedCards.set(card.name, currentCount - 1)
+                if (currentCount - 1 === 0) {
+                    minusButton.classList.add("__isDisabled")
+                }
+            }
+            
+            // Plus knoppen weer inschakelen als we onder het maximum komen
+            const totalSelected = Array.from(selectedCards.values()).reduce((a, b) => a + b, 0)
+            if (totalSelected < MAX_SELECTED_CARDS) {
+                hand.forEach(c => {
+                    if (c.tr) {
+                        const plusBtn = c.tr.querySelector(".plus-btn")
+                        if (plusBtn) {
+                            plusBtn.classList.remove("__isDisabled")
+                        }
+                    }
+                })
+            }
+            
+            updateSelectedCount()
+        })
+        
         tr.id = `card-${card.id}`
         card.tr = tr
     })
@@ -84,7 +128,16 @@ if (gameboardEl) {
 const werp1El = document.querySelector("#werp")
 if (werp1El) {
     werp1El.addEventListener("click", function() { 
-        const res = berekenHandwaarde(hand.filter(card => card.selected))
+        const selectedCardsArray = [] as Card[]
+        selectedCards.forEach((count, cardName) => {
+            const card = hand.find(c => c.name === cardName)
+            if (card) {
+                for (let i = 0; i < count; i++) {
+                    selectedCardsArray.push(card)
+                }
+            }
+        })
+        const res = berekenHandwaarde(selectedCardsArray)
         throws.push(...res)
         updateDiceResult()
         drawChart(throws) 
@@ -94,7 +147,16 @@ if (werp1El) {
 const werp10El = document.querySelector("#werp-10")
 if (werp10El) {
     werp10El.addEventListener("click", function() { 
-        const res = berekenHandwaarde(hand.filter(card => card.selected), 10)
+        const selectedCardsArray = [] as Card[]
+        selectedCards.forEach((count, cardName) => {
+            const card = hand.find(c => c.name === cardName)
+            if (card) {
+                for (let i = 0; i < count; i++) {
+                    selectedCardsArray.push(card)
+                }
+            }
+        })
+        const res = berekenHandwaarde(selectedCardsArray, 10)
         throws.push(...res)
         updateDiceResult()
         drawChart(throws)
@@ -104,7 +166,16 @@ if (werp10El) {
 const werp100El = document.querySelector("#werp-100")
 if (werp100El) {
     werp100El.addEventListener("click", function() { 
-        const res = berekenHandwaarde(hand.filter(card => card.selected), 100)
+        const selectedCardsArray = [] as Card[]
+        selectedCards.forEach((count, cardName) => {
+            const card = hand.find(c => c.name === cardName)
+            if (card) {
+                for (let i = 0; i < count; i++) {
+                    selectedCardsArray.push(card)
+                }
+            }
+        })
+        const res = berekenHandwaarde(selectedCardsArray, 100)
         throws.push(...res)
         updateDiceResult()
         drawChart(throws)
@@ -114,7 +185,16 @@ if (werp100El) {
 const werp1000El = document.querySelector("#werp-1000")
 if (werp1000El) {
     werp1000El.addEventListener("click", function() { 
-        const res = berekenHandwaarde(hand.filter(card => card.selected), 1000)
+        const selectedCardsArray = [] as Card[]
+        selectedCards.forEach((count, cardName) => {
+            const card = hand.find(c => c.name === cardName)
+            if (card) {
+                for (let i = 0; i < count; i++) {
+                    selectedCardsArray.push(card)
+                }
+            }
+        })
+        const res = berekenHandwaarde(selectedCardsArray, 1000)
         throws.push(...res)
         updateDiceResult()
         drawChart(throws)
@@ -124,7 +204,16 @@ if (werp1000El) {
 const werp100000El = document.querySelector("#werp-100000")
 if (werp100000El) {
     werp100000El.addEventListener("click", function() { 
-        const res = berekenHandwaarde(hand.filter(card => card.selected), 100000)
+        const selectedCardsArray = [] as Card[]
+        selectedCards.forEach((count, cardName) => {
+            const card = hand.find(c => c.name === cardName)
+            if (card) {
+                for (let i = 0; i < count; i++) {
+                    selectedCardsArray.push(card)
+                }
+            }
+        })
+        const res = berekenHandwaarde(selectedCardsArray, 100000)
         throws.push(...res)
         updateDiceResult()
         drawChart(throws)
@@ -134,13 +223,48 @@ if (werp100000El) {
 const werp1000000El = document.querySelector("#werp-1000000")
 if (werp1000000El) {
     werp1000000El.addEventListener("click", function() { 
+        const selectedCardsArray = [] as Card[]
+        selectedCards.forEach((count, cardName) => {
+            const card = hand.find(c => c.name === cardName)
+            if (card) {
+                for (let i = 0; i < count; i++) {
+                    selectedCardsArray.push(card)
+                }
+            }
+        })
         // Bereken in batches van 100.000
         for (let i = 0; i < 10; i++) {
-            const res = berekenHandwaarde(hand.filter(card => card.selected), 100000)
+            const res = berekenHandwaarde(selectedCardsArray, 100000)
             throws.push(...res)
             updateDiceResult()
             drawChart(throws)
         }
+    })
+}
+
+const resetDicesEl = document.querySelector("#reset-dices")
+if (resetDicesEl) {
+    resetDicesEl.addEventListener("click", function() {
+        throws.length = 0
+        selectedCards.clear() // Reset de selectedCards Map
+        hand.forEach(card => {
+            if (card.tr) {
+                const countEl = card.tr.querySelector("td:nth-child(3)")
+                if (countEl) {
+                    countEl.innerHTML = "0"
+                }
+                const minusBtn = card.tr.querySelector(".minus-btn")
+                if (minusBtn) {
+                    minusBtn.classList.add("__isDisabled")
+                }
+                const plusBtn = card.tr.querySelector(".plus-btn")
+                if (plusBtn) {
+                    plusBtn.classList.remove("__isDisabled")
+                }
+            }
+        })
+        updateDiceResult()
+        drawChart(throws)
     })
 }
 
@@ -149,7 +273,7 @@ const updateDiceResult = function() {
     const diceResultEl = document.querySelector("#dice-result") as HTMLElement
     
     if (diceResultEl) {
-        diceResultEl.innerHTML = throws[throws.length - 1].toString()
+        diceResultEl.innerHTML = throws.length > 0 ? throws[throws.length - 1].toString() : "-"
         // Gebruik de font-size van de laatste worp als basis
         const baseFontSize = window.getComputedStyle(diceResultEl).fontSize
         if (dicesEl) {
@@ -165,17 +289,17 @@ const updateDiceResult = function() {
         }
     }
 
-    if (throws.length > 0) {
-        const kansenLijstEl = document.querySelector("#kansen-lijst")
-        if (kansenLijstEl) {
+    const kansenLijstEl = document.querySelector("#kansen-lijst")
+    if (kansenLijstEl) {
+        // Maak de lijst leeg
+        kansenLijstEl.innerHTML = ""
+
+        if (throws.length > 0) {
             // Bereken de frequentie van elke waarde
             const frequenties = throws.reduce((acc, num) => {
                 acc[num] = (acc[num] || 0) + 1
                 return acc
             }, {} as Record<number, number>)
-
-            // Maak de lijst leeg
-            kansenLijstEl.innerHTML = ""
 
             // Maak een tabel
             const table = document.createElement("table")
