@@ -8,6 +8,7 @@ const routes = [
     { path: "/", name: "Home", file: "/pages/home.html" },
     { path: "/deck-builder", name: "Deck Builder", file: "/pages/deck-builder.html" },
     { path: "/hand-power-visualizer", name: "Kaartkracht graph", file: "/pages/hand-power-visualizer.html" },
+    { path: "/kaart-rating", name: "Kaart rating", file: "/pages/kaart-rating.html" },
     { path: "/hand-power", name: "Hand kracht", file: "/pages/hand-power.html" },
     { path: "/player-hand-power", name: "Speler handkracht", file: "/pages/player-hand-power.html" },
     { path: "/generate-hand-values", name: "Genereer hand combinaties", file: "/pages/generate-hand-values.html" }

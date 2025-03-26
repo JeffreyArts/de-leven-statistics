@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaart Rating</title>
+</head>
+<body class="kaart-rating">
+    <div class="container kaart-rating">
+        <div id="kaart-info">
+            <h2 id="kaart-naam"></h2>
+        </div>
+
+        <div id="power-graph-container">
+            <svg id="hand-power-graph"></svg>
+        </div>
+
+        <div id="sterren-container">
+            <h3>Rate hand <div class="rating-counter">0 / 0</div></h3>
+            <div class="sterren" id="sterren"></div>
+            <div class="navigation">
+                <button class="nav-button prev" id="prev-kaart">‹</button>
+                <div class="rating-position">1 / 1</div>
+                <button class="nav-button next" id="next-kaart">›</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/pages/kaart-rating.ts"></script>
+</body>
+</html> 
