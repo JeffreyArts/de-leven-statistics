@@ -24,7 +24,28 @@
                 <button class="nav-button next" id="next-kaart">›</button>
             </div>
         </div>
+
+        <div id="ml-predictions">
+            <div id="ml-info">
+                <h3>ML Voorspellingen</h3>
+                <div class="ml-info-container">
+                    <div id="model-status">Model niet getraind</div>
+                    <button id="train-model" class="train-button">Train Model</button>
+                </div>
+            </div>
+            <div id="prediction-container">
+                <div class="prediction-box">
+                    <h4>Voorspelde Rating</h4>
+                    <div id="predicted-rating">-</div>
+                </div>
+                <div class="prediction-box">
+                    <h4>Model Nauwkeurigheid</h4>
+                    <div id="model-accuracy">-</div>
+                </div>
+            </div>
+        </div>
     </div>
+
 
     <script type="module" src="/src/pages/kaart-rating.ts"></script>
 </body>

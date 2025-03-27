@@ -142,7 +142,7 @@ generateButton.addEventListener("click", async () => {
         const kaarten = combinatie.map(card => card.name)
         
         // Bepaal appliedToSelf
-        const appliedToSelf = !kaarten.some(card => 
+        let appliedToSelf = !kaarten.some(card => 
             card === "Speler links" || 
             card === "Iedereen" || 
             card === "Speler rechts" || 
@@ -159,6 +159,7 @@ generateButton.addEventListener("click", async () => {
         }
         if (kaarten.includes("Iedereen")) {
             appliedToOthers = 99
+            appliedToSelf = true
         }
         
         // Bepaal switchPosition
