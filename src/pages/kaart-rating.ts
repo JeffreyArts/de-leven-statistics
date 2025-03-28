@@ -1,4 +1,5 @@
 import "/src/scss/style.scss"
+import "/src/scss/buttons.scss"
 import "/src/scss/kaart-rating.scss"
 import { HandPowerGraph, HandWaarde } from "../components/hand-power-graph"
 import { CardName } from "../models/card"
@@ -421,4 +422,73 @@ trainButton?.addEventListener("click", () => {
         return
     }
     trainModel(ratings, handWaarden)
+})
+
+// Download ratings
+const downloadButton = document.getElementById("download-ratings")
+downloadButton?.addEventListener("click", () => {
+    const ratingsData = JSON.stringify(ratings, null, 2)
+    const blob = new Blob([ratingsData], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "hand-ratings.json"
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+})
+
+// Upload ratings
+const uploadButton = document.getElementById("upload-ratings-button")
+const fileInput = document.getElementById("upload-ratings") as HTMLInputElement
+
+uploadButton?.addEventListener("click", () => {
+    fileInput.click()
+})
+
+fileInput?.addEventListener("change", (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+        try {
+            const uploadedRatings = JSON.parse(e.target?.result as string)
+            
+            // Valideer de structuur van de geüploade ratings
+            if (typeof uploadedRatings !== "object" || uploadedRatings === null) {
+                throw new Error("Ongeldig ratings formaat")
+            }
+
+            // Vervang de huidige ratings met de geüploade ratings
+            Object.keys(ratings).forEach(key => delete ratings[key])
+            Object.assign(ratings, uploadedRatings)
+            
+            // Sla de nieuwe ratings op
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(ratings))
+            
+            // Update de teller
+            const ratingCounterEl = document.querySelector(".rating-counter")
+            if (ratingCounterEl) {
+                const ratedCount = Object.keys(ratings).length
+                ratingCounterEl.textContent = `${ratedCount} / ${handWaarden.length}`
+            }
+
+            // Reset het model als het bestaat
+            model = null
+            const modelStatusEl = document.getElementById("model-status")
+            if (modelStatusEl) {
+                modelStatusEl.textContent = "Model niet getraind"
+            }
+
+            // Update de UI met de huidige kaart
+            updateUI(trainingHistory[currentIndex])
+            
+            alert("Ratings succesvol geüpload!")
+        } catch (error) {
+            alert("Fout bij het uploaden van de ratings: " + (error as Error).message)
+        }
+    }
+    reader.readAsText(file)
 }) 

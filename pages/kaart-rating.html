@@ -30,7 +30,7 @@
                 <h3>ML Voorspellingen</h3>
                 <div class="ml-info-container">
                     <div id="model-status">Model niet getraind</div>
-                    <button id="train-model" class="train-button">Train Model</button>
+                    <button id="train-model" class="primary-btn">Train Model</button>
                 </div>
             </div>
             <div id="prediction-container">
@@ -43,6 +43,13 @@
                     <div id="model-accuracy">-</div>
                 </div>
             </div>
+        </div>
+
+
+        <div id="import-export">
+            <button id="download-ratings" class="btn">Download Ratings</button>
+            <input type="file" id="upload-ratings" accept=".json" style="display: none;">
+            <button id="upload-ratings-button" class="btn">Upload Ratings</button>
         </div>
     </div>
 
