@@ -34,15 +34,28 @@ const trainingHistory: KaartConfig[] = []
 
 // Kies een willekeurige kaart configuratie
 function kiesWillekeurigeKaart(): KaartConfig {
+    // Bepaal welke kaartlengte we moeten beoordelen
+    const gerateKaarten = getRatedKaarten()
+    const kaartLengtes = [1, 2, 3, 4, 5]
+    
+    // Vind de eerste kaartlengte waar nog niet alle kaarten zijn gerate
+    const huidigeKaartLengte = kaartLengtes.find(lengte => {
+        const alleKaartenMetLengte = handWaarden.filter(kaart => kaart.kaarten.length === lengte)
+        const gerateKaartenMetLengte = gerateKaarten.filter(kaart => kaart.kaarten.length === lengte)
+        return gerateKaartenMetLengte.length < alleKaartenMetLengte.length
+    }) || 1 // Als alle kaarten zijn gerate, begin opnieuw bij 1
+    
+    // Filter handen op basis van het aantal kaarten
     const beschikbareKaarten = handWaarden.filter(kaart => 
+        kaart.kaarten.length === huidigeKaartLengte &&
         !trainingHistory.some(h => h.kaarten.join(",") === kaart.kaarten.join(","))
     )
     
     if (beschikbareKaarten.length === 0) {
-        // Als alle kaarten zijn bekeken, reset de geschiedenis
+        // Als alle handen met dit aantal kaarten zijn bekeken, reset de geschiedenis
         trainingHistory.length = 0
         currentIndex = 0
-        return handWaarden[Math.floor(Math.random() * handWaarden.length)]
+        return kiesWillekeurigeKaart()
     }
     
     return beschikbareKaarten[Math.floor(Math.random() * beschikbareKaarten.length)]
@@ -352,7 +365,7 @@ async function trainModel(ratings: Record<string, number>, handWaarden: KaartCon
             epochs: 100,
             validationSplit: 0.2,
             callbacks: {
-                onEpochEnd: (epoch, logs) => {
+                onEpochEnd: (_epoch, logs) => {
                     if (logs) {
                         const accuracy = (1 - logs.mse) * 100
                         accuracyEl.textContent = `${accuracy.toFixed(1)}%`
@@ -360,7 +373,8 @@ async function trainModel(ratings: Record<string, number>, handWaarden: KaartCon
                 }
             }
         })
-        
+        console.log(trainingHistory)
+
         statusEl.textContent = "Model getraind!"
         
         // Update voorspelling voor huidige kaart
