@@ -42,13 +42,16 @@ function kiesWillekeurigeKaart(): KaartConfig {
     const huidigeKaartLengte = kaartLengtes.find(lengte => {
         const alleKaartenMetLengte = handWaarden.filter(kaart => kaart.kaarten.length === lengte)
         const gerateKaartenMetLengte = gerateKaarten.filter(kaart => kaart.kaarten.length === lengte)
-        return gerateKaartenMetLengte.length < alleKaartenMetLengte.length
+        const percentageGerate = (gerateKaartenMetLengte.length / alleKaartenMetLengte.length) * 100
+        // Ga naar de volgende lengte als er meer dan 90% van de kaarten is gerate
+        return percentageGerate < 90
     }) || 1 // Als alle kaarten zijn gerate, begin opnieuw bij 1
     
     // Filter handen op basis van het aantal kaarten
     const beschikbareKaarten = handWaarden.filter(kaart => 
         kaart.kaarten.length === huidigeKaartLengte &&
-        !trainingHistory.some(h => h.kaarten.join(",") === kaart.kaarten.join(","))
+        !trainingHistory.some(h => h.kaarten.join(",") === kaart.kaarten.join(",")) &&
+        !ratings[kaart.kaarten.join(",")]
     )
     
     if (beschikbareKaarten.length === 0) {
