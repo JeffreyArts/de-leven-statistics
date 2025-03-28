@@ -19,7 +19,7 @@ interface KaartConfig {
 }
 
 // Laad de hand-waarden.json data
-const handWaarden = await fetch("/src/hand-waarden.json").then(res => res.json()) as KaartConfig[]
+const handWaarden = await fetch("/hand-waarden.json").then(res => res.json()) as KaartConfig[]
 
 // Haal opgeslagen ratings op
 const STORAGE_KEY = "hand_ratings"

@@ -6,7 +6,7 @@ import { HandPowerGraph, HandWaarde } from "../components/hand-power-graph"
 
 const hand = [] as Array<Card>
 const selectedCards = new Map<string, number>() // Houdt bij hoeveel van elke kaart is geselecteerd
-const handWaarden = (await import("../hand-waarden.json")).default as HandWaarde[]
+const handWaarden = await fetch("/hand-waarden.json").then(res => res.json()) as HandWaarde[]
 const MAX_SELECTED_CARDS = 5
 
 for(let i = 0; i < CardTypes.length; i++) {
